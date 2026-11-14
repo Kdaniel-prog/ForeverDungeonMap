@@ -32,8 +32,8 @@ jobs:
       contents: write
       # starts the tag's own release run (workflow_dispatch)
       actions: write
+    # CF_API_KEY is set by the token check below (cleaned of pasted whitespace)
     env:
-      CF_API_KEY: ${{ secrets.CF_API_KEY }}
       WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
       GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -87,12 +87,21 @@ jobs:
             commit -q -m "$GITHUB_REF_NAME"
           git tag "$GITHUB_REF_NAME"
 
-      # The packager only says "Error fetching game version info" when CurseForge refuses the token.
+      # A token pasted from a Windows terminal can carry a line break (CurseForge then answers 400),
+      # and the packager only says "Error fetching game version info" when CurseForge refuses it:
+      # clean the token, check it, and hand it to the packager.
       - name: Check the CurseForge token
-        if: steps.version.outputs.release == 'true' && env.CF_API_KEY != ''
+        if: steps.version.outputs.release == 'true'
+        env:
+          SECRET_TOKEN: ${{ secrets.CF_API_KEY }}
         run: |
-          status=$(curl -s -o /dev/null -w '%{http_code}' -H "X-Api-Token: $CF_API_KEY" https://wow.curseforge.com/api/game/versions)
+          token=$(printf '%s' "$SECRET_TOKEN" | tr -d '[:space:]')
+          if [ -z "$token" ]; then echo "No CF_API_KEY secret: GitHub release only."; exit 0; fi
+          echo "::add-mask::$token"
+          echo "Removed $(( ${#SECRET_TOKEN} - ${#token} )) whitespace characters from the token."
+          status=$(curl -s -o /dev/null -w '%{http_code}' -H "X-Api-Token: $token" https://wow.curseforge.com/api/game/versions)
           echo "CurseForge API answered HTTP $status"
+          echo "CF_API_KEY=$token" >> "$GITHUB_ENV"
           if [ "$status" != "200" ]; then
             echo "::error::CurseForge does not accept the CF_API_KEY secret (HTTP $status). Make a new token at https://authors.curseforge.com/account/api-tokens and set it again."
             exit 1
