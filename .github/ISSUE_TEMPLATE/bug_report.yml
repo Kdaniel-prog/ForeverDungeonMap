@@ -1,0 +1,23 @@
+name: Bug report
+description: Something in ForeverDungeonMap is wrong or broken.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! In game, type **/fdmap bug** (or click the note icon next to the
+        Dungeon Journal's close button). Write what happened at the top, then Ctrl+A, Ctrl+C and
+        paste everything below.
+  - type: textarea
+    id: report
+    attributes:
+      label: The /fdmap bug text
+      description: Your description plus the details the addon filled in.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: Screenshot (optional)
+      description: Drag a screenshot here if it shows the problem.

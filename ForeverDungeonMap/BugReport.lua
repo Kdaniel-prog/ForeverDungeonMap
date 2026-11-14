@@ -101,6 +101,8 @@ end
 -- The whole report; every part is guarded so a broken API never stops the rest.
 function BugReport.Text()
     local lines = { L["Describe the problem here: what you did, what you expected, what happened."] }
+    local issues = Metadata(addonName, "X-Issues")
+    if issues then lines[#lines + 1] = L["Send it to: %s"]:format(issues) end
     for _ = 1, DESCRIPTION_LINES do lines[#lines + 1] = "" end
     lines[#lines + 1] = "---- ForeverDungeonMap bug report ----"
     for _, part in ipairs({ VersionLine, CharacterLine, WhereLine, JournalLine, SettingsLine, AddonsLine, BlockedLines }) do
@@ -111,8 +113,6 @@ function BugReport.Text()
             lines[#lines + 1] = ok and result or ("(failed: " .. tostring(result) .. ")")
         end
     end
-    local website = Metadata(addonName, "X-Website")
-    if website then lines[#lines + 1] = L["Send it to: %s"]:format(website) end
     return table.concat(lines, "\n")
 end
 
