@@ -2,7 +2,8 @@
 #
 # How a release happens: the top version heading of CHANGELOG.md, e.g. "## 0.7.1 (unreleased)",
 # loses its "(unreleased)" and is pushed to main. This workflow then tags that version (v0.7.1),
-# builds the zip with BigWigsMods/packager (the tag becomes "## Version") and uploads it.
+# starts itself again on that tag, and the tag run builds the zip with BigWigsMods/packager
+# (the tag becomes "## Version") and uploads it.
 # Pushing a version tag by hand (v0.7.2) releases as well. A heading still marked
 # "(unreleased)", or a version already tagged, releases nothing.
 #
@@ -29,6 +30,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      # starts the tag's own release run (workflow_dispatch)
+      actions: write
     env:
       CF_API_KEY: ${{ secrets.CF_API_KEY }}
       WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
@@ -56,10 +59,16 @@ jobs:
             echo "v$version is already released."
             echo "release=false" >> "$GITHUB_OUTPUT"
           else
+            # the packager only builds on a tag run, and a tag pushed with this token starts no
+            # run, so the new tag gets a run of its own through workflow_dispatch
             git tag "v$version"
             git push origin "v$version"
-            echo "release=true" >> "$GITHUB_OUTPUT"
+            gh workflow run release.yml --ref "v$version"
+            echo "Started the release run for v$version."
+            echo "release=false" >> "$GITHUB_OUTPUT"
           fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # The packager reads .pkgmeta and the changelog from its top directory (the addon folder).
       - name: Put the packager files next to the addon
