@@ -99,8 +99,9 @@ jobs:
           if [ -z "$token" ]; then echo "No CF_API_KEY secret: GitHub release only."; exit 0; fi
           echo "::add-mask::$token"
           echo "Removed $(( ${#SECRET_TOKEN} - ${#token} )) whitespace characters from the token."
-          status=$(curl -s -o /dev/null -w '%{http_code}' -H "X-Api-Token: $token" https://wow.curseforge.com/api/game/versions)
-          echo "CurseForge API answered HTTP $status"
+          status=$(curl -s -o answer.txt -w '%{http_code}' -H "X-Api-Token: $token" https://wow.curseforge.com/api/game/versions)
+          echo "CurseForge API answered HTTP $status (token: ${#token} characters)"
+          if [ "$status" != "200" ]; then head -c 300 answer.txt; echo; fi
           echo "CF_API_KEY=$token" >> "$GITHUB_ENV"
           if [ "$status" != "200" ]; then
             echo "::error::CurseForge does not accept the CF_API_KEY secret (HTTP $status). Make a new token at https://authors.curseforge.com/account/api-tokens and set it again."
