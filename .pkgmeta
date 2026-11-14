@@ -1,0 +1,15 @@
+# BigWigsMods/packager settings for ForeverDungeonMap.
+# The addon lives in ForeverDungeonMap/, so the release workflow copies this file and
+# CHANGELOG.md into that folder and runs the packager with "-t ForeverDungeonMap":
+# every path below is relative to ForeverDungeonMap/.
+package-as: ForeverDungeonMap
+
+manual-changelog:
+  filename: CHANGELOG.md
+  markup-type: markdown
+
+# Design notes and the HTML mockup are for development only.
+ignore:
+  - ui-mockup.html
+  - ui-spec.md
+  - "*.bak"

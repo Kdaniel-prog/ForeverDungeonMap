@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<title>ForeverDungeonMap – UI tervrajz</title>
+<style>
+  :root {
+    --gold: #ffd100; --gold-dim: #c8a24a; --gold-dark: #6b5420;
+    --frame: #1a1410; --panel: #241c14; --panel2: #2e241a; --text: #e8dcc0; --grey: #9d9d9d;
+    --q-common: #ffffff; --q-uncommon: #1eff00; --q-rare: #0070dd; --q-epic: #a335ee;
+    --alliance: #3a6fd8; --horde: #c8282d;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 28px; background: #0c0a08 radial-gradient(circle at 30% 20%, #2a2016, #0c0a08 70%);
+         color: var(--text); font-family: "Friz Quadrata TT", "Friz Quadrata", Georgia, serif; }
+  h1 { color: var(--gold); font-weight: normal; letter-spacing: 1px; margin: 0 0 4px; }
+  .sub { color: var(--grey); margin-bottom: 26px; font-family: Segoe UI, sans-serif; font-size: 14px; }
+  h2 { color: var(--gold); font-weight: normal; border-bottom: 1px solid var(--gold-dark); padding-bottom: 6px; margin: 44px 0 14px; }
+  .note { font-family: Segoe UI, sans-serif; font-size: 13px; color: #cfc6b0; max-width: 980px; line-height: 1.5; }
+  .note b { color: var(--gold); }
+  .row { display: flex; gap: 22px; align-items: flex-start; flex-wrap: wrap; }
+
+  /* --- Blizzard style frame --- */
+  .frame { position: relative; background: var(--frame); border: 3px solid #4a3a22;
+           box-shadow: 0 0 0 1px #000, inset 0 0 0 1px #000, 0 10px 30px rgba(0,0,0,.7); border-radius: 6px; }
+  .frame::before { content: ""; position: absolute; inset: 3px; border: 1px solid var(--gold-dark); border-radius: 4px; pointer-events: none; }
+  .titlebar { height: 26px; display: flex; align-items: center; justify-content: center; color: var(--gold);
+              font-size: 13px; background: linear-gradient(#3a2c1c, #1c150e); border-bottom: 1px solid #000; position: relative; }
+  .close { position: absolute; right: 6px; top: 4px; width: 18px; height: 18px; border-radius: 3px;
+           background: linear-gradient(#b3261e, #6d140f); border: 1px solid #000; color: #ffd; font: bold 12px Arial; text-align: center; line-height: 16px; }
+  .portrait-icon { position: absolute; left: -14px; top: -14px; width: 50px; height: 50px; border-radius: 50%;
+                   background: radial-gradient(circle at 40% 35%, #c9b07a, #6b5420 60%, #2a2014); border: 3px solid #8a6d32; box-shadow: 0 0 0 2px #000;
+                   display: flex; align-items: center; justify-content: center; font-size: 22px; color: #2a2014; }
+  .btn { display: inline-block; padding: 3px 12px; font-size: 12px; color: var(--gold); border-radius: 3px; cursor: default;
+         background: linear-gradient(#8e1b14, #4b0d09); border: 1px solid #000; box-shadow: inset 0 1px 0 rgba(255,255,255,.18); }
+  .btn.sel { background: linear-gradient(#b33a1c, #6b1a0c); color: #fff; }
+  .btn.small { padding: 1px 7px; }
+
+  /* --- world map window --- */
+  .worldmap { width: 900px; }
+  .navbar { display: flex; gap: 2px; padding: 5px 8px; background: #120e0a; border-bottom: 1px solid #000; font-size: 12px; }
+  .crumb { padding: 3px 14px 3px 10px; background: linear-gradient(#5a1712, #33100c); color: var(--gold);
+           clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 0 100%); }
+  .crumb.last { background: linear-gradient(#7a2a15, #4a170c); color: #fff; }
+  .mapbody { display: flex; }
+  .mapcanvas { position: relative; width: 640px; height: 470px; overflow: hidden; border-right: 1px solid #000; }
+  .art { position: absolute; inset: 0; background:
+           radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0) 55%, rgba(0,0,0,.55) 100%),
+           linear-gradient(135deg, #b89b62, #a2844e 40%, #c2a46c 70%, #987a45); }
+  .art svg { position: absolute; inset: 0; }
+  .header { position: absolute; left: 0; right: 0; top: 0; height: 40px; display: flex; align-items: center; gap: 10px; padding: 0 10px;
+            background: linear-gradient(rgba(0,0,0,.85), rgba(0,0,0,.45)); }
+  .lfgicon { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--gold-dim); box-shadow: 0 0 0 1px #000;
+             background: radial-gradient(circle at 45% 40%, #4fa36b, #1f4a2c 70%); }
+  .dname { color: var(--gold); font-size: 17px; text-shadow: 1px 1px 0 #000; }
+  .dlvl { color: #bbb; font-size: 12px; font-family: Segoe UI, sans-serif; }
+  .spacer { flex: 1; }
+  .floor { font-size: 12px; color: #fff; font-family: Segoe UI, sans-serif; display: flex; align-items: center; gap: 6px; }
+  .arrow { width: 20px; height: 20px; border-radius: 50%; background: linear-gradient(#5e4a26, #2a2112); border: 1px solid #000;
+           color: var(--gold); font-size: 11px; display: flex; align-items: center; justify-content: center; }
+  .footer { position: absolute; left: 8px; bottom: 6px; font-size: 11px; font-family: Segoe UI, sans-serif; color: #eee; text-shadow: 1px 1px 0 #000; }
+  .footer b { color: var(--gold); font-weight: normal; }
+  .boss { position: absolute; width: 38px; height: 38px; border-radius: 50%; transform: translate(-50%, -50%);
+          border: 3px solid #d9b25a; box-shadow: 0 0 0 1px #000, 0 2px 6px rgba(0,0,0,.8);
+          display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; color: #fff; text-shadow: 1px 1px 0 #000; }
+  .boss .num { position: absolute; right: -7px; bottom: -6px; width: 17px; height: 17px; border-radius: 50%; background: #1a1410;
+               border: 1px solid var(--gold-dim); color: var(--gold); font-size: 10px; display: flex; align-items: center; justify-content: center; }
+  .boss.dead { filter: grayscale(1) brightness(.6); }
+  .boss.dead::after { content: "✕"; position: absolute; color: #ff4a3a; font-size: 26px; }
+  .entrance { position: absolute; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 4px; color: var(--gold); font-size: 13px; text-shadow: 1px 1px 0 #000; }
+  .entrance i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #8fd3ff; background: #1b5a7a; box-shadow: 0 0 6px #6cf; }
+  .tooltip { position: absolute; background: rgba(8,8,24,.94); border: 1px solid #8a8a9a; border-radius: 4px; padding: 7px 9px;
+             font-family: Segoe UI, sans-serif; font-size: 12px; color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,.7); min-width: 170px; }
+  .tooltip .t { color: var(--gold); font-size: 13px; margin-bottom: 3px; }
+  .tooltip .g { color: #aaa; }
+  .tooltip .b { color: #8fd3ff; }
+
+  /* side list (bosses / quests) */
+  .side { width: 254px; background: #17110c; }
+  .tabs { display: flex; gap: 4px; padding: 8px; border-bottom: 1px solid #000; }
+  .list { padding: 6px; height: 420px; overflow: hidden; }
+  .li { display: flex; align-items: center; gap: 8px; padding: 5px 6px; border-radius: 3px; margin-bottom: 3px;
+        background: linear-gradient(90deg, #2c2218, #1c150f); border: 1px solid #000; font-size: 12px; }
+  .li.sel { background: linear-gradient(90deg, #4a3a1c, #2a2012); border-color: var(--gold-dark); }
+  .mini { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #b9954a; flex: none;
+          display: flex; align-items: center; justify-content: center; font-size: 10px; color: #fff; }
+  .lv { color: var(--gold); font-size: 10px; font-family: Segoe UI, sans-serif; }
+
+  /* quests */
+  .q { display: grid; grid-template-columns: 34px 16px 1fr 14px; align-items: center; gap: 5px; padding: 4px 6px; margin-bottom: 2px;
+       font-family: Segoe UI, sans-serif; font-size: 12px; border-bottom: 1px solid #2a2016; }
+  .fac { display: flex; gap: 2px; }
+  .fac i { width: 15px; height: 15px; border-radius: 3px; font-style: normal; font-size: 9px; font-weight: bold; color: #fff;
+           display: flex; align-items: center; justify-content: center; border: 1px solid #000; }
+  .fac .a { background: var(--alliance); } .fac .h { background: var(--horde); }
+  .chain { width: 15px; height: 15px; border-radius: 50%; border: 1px solid #c8a24a; background: #3a2c14; color: var(--gold);
+           font-size: 9px; display: flex; align-items: center; justify-content: center; }
+  .st { font-weight: bold; text-align: center; }
+  .done { color: #7d7; } .avail { color: var(--gold); } .inlog { color: #9cf; } .locked { color: #777; }
+  .qn { color: #e8dcc0; } .qn small { color: var(--gold); margin-right: 4px; }
+  .qgroup { color: var(--gold); font-size: 11px; padding: 6px 6px 2px; letter-spacing: .5px; }
+
+  /* live view */
+  .live { width: 330px; }
+  .live .titlebar { cursor: move; justify-content: flex-start; padding-left: 10px; }
+  .live .grip { position: absolute; right: 30px; top: 7px; color: var(--gold-dim); font-size: 11px; font-family: Segoe UI; }
+  .minimap { margin: 8px; height: 300px; position: relative; overflow: hidden; border: 1px solid #000;
+             background: #050505; }
+  .minimap svg { position: absolute; inset: 0; }
+  .dot { position: absolute; width: 10px; height: 10px; border-radius: 50%; transform: translate(-50%, -50%); border: 1px solid #000; }
+  .me { position: absolute; left: 50%; top: 50%; width: 0; height: 0; transform: translate(-50%, -60%);
+        border-left: 7px solid transparent; border-right: 7px solid transparent; border-bottom: 16px solid #ffe; filter: drop-shadow(0 0 2px #000); }
+  .live .bar { display: flex; justify-content: space-between; padding: 0 8px 8px; font-size: 11px; font-family: Segoe UI; color: #bbb; }
+  .names { padding: 0 8px 8px; display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 12px; font-family: Segoe UI; }
+
+  /* loot popup */
+  .loot { width: 300px; }
+  .loothead { display: flex; align-items: center; gap: 10px; padding: 12px 12px 8px 30px; }
+  .bigp { width: 52px; height: 52px; border-radius: 50%; border: 3px solid #d9b25a; box-shadow: 0 0 0 1px #000; flex: none; }
+  .item { display: flex; align-items: center; gap: 8px; margin: 0 10px 5px; padding: 4px; background: #1b140e; border: 1px solid #000; border-radius: 3px;
+          font-family: Segoe UI, sans-serif; font-size: 12px; }
+  .ico { width: 30px; height: 30px; border: 1px solid #000; border-radius: 3px; flex: none; box-shadow: inset 0 0 0 1px rgba(255,255,255,.15); }
+  .item small { display: block; color: #aaa; font-size: 11px; }
+
+  /* journal */
+  .journal { width: 900px; }
+  .jtools { display: flex; gap: 6px; padding: 10px; align-items: center; border-bottom: 1px solid #000; }
+  .search { flex: 0 0 220px; background: #0d0a07; border: 1px solid #4a3a22; border-radius: 3px; color: #777; font: 12px Segoe UI; padding: 4px 8px; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 12px; }
+  .card { position: relative; height: 92px; border: 1px solid #000; border-radius: 4px; overflow: hidden; display: flex; align-items: flex-end;
+          box-shadow: inset 0 0 0 1px var(--gold-dark); }
+  .card .bg { position: absolute; inset: 0; opacity: .9; }
+  .card .cap { position: relative; width: 100%; padding: 6px 8px; background: linear-gradient(transparent, rgba(0,0,0,.92) 45%); }
+  .card .cn { color: var(--gold); font-size: 13px; }
+  .card .cl { font: 11px Segoe UI; }
+  .card .badge { position: absolute; top: 6px; right: 6px; font: 10px Segoe UI; padding: 1px 6px; border-radius: 8px; background: rgba(0,0,0,.75); border: 1px solid var(--gold-dark); color: var(--gold); }
+  .card .lfg { position: absolute; top: 8px; left: 8px; width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--gold-dim); box-shadow: 0 0 0 1px #000; }
+  .ok { color: #3f3; } .hard { color: #ff8040; } .easy { color: #888; }
+
+  /* record banner */
+  .banner { width: 640px; display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 5px;
+            background: linear-gradient(#3a2a10, #1e160b); border: 1px solid var(--gold-dim); box-shadow: 0 0 14px rgba(255,209,0,.25); font-family: Segoe UI; font-size: 13px; }
+  .banner .bigp { width: 40px; height: 40px; }
+  .banner b { color: var(--gold); font-weight: normal; font-family: Georgia, serif; font-size: 15px; }
+
+  .tag { display: inline-block; font: 11px Segoe UI; color: #000; background: var(--gold); border-radius: 9px; padding: 1px 8px; margin-right: 6px; }
+  .legend td { padding: 3px 10px 3px 0; font-family: Segoe UI; font-size: 13px; vertical-align: middle; }
+  .addonicon { width: 64px; height: 64px; border: 2px solid #000; border-radius: 6px; box-shadow: inset 0 0 0 2px var(--gold-dark);
+               background: radial-gradient(circle at 40% 35%, #e7cf90, #a77d3a 55%, #5a3d17); position: relative; overflow: hidden; }
+</style>
+</head>
+<body>
+
+<h1>ForeverDungeonMap — UI tervrajz</h1>
+<div class="sub">v0.2 terv · WoW Forever (interface 16001) · a kész addon a játék beépített elemeit használja: keretek, gombok, betűtípus, ikonok, tooltip</div>
+
+<!-- ============================================================ 1 -->
+<h2>1 · M dungeonben: dungeon térkép + élő nézet mellette</h2>
+<div class="row">
+  <div class="frame worldmap">
+    <div class="titlebar">Map &amp; Quest Log<span class="close">✕</span></div>
+    <div class="navbar">
+      <span class="crumb">World</span><span class="crumb">Kalimdor</span><span class="crumb">The Barrens</span><span class="crumb last">Wailing Caverns</span>
+    </div>
+    <div class="mapbody">
+      <div class="mapcanvas">
+        <div class="art">
+          <svg viewBox="0 0 640 470" preserveAspectRatio="none">
+            <defs><filter id="r"><feTurbulence baseFrequency=".02" numOctaves="3"/><feDisplacementMap in="SourceGraphic" scale="14"/></filter></defs>
+            <g filter="url(#r)" fill="#d8c79a" stroke="#6e5428" stroke-width="3" opacity=".95">
+              <path d="M70 230 C 80 150, 200 120, 250 160 S 330 120, 380 170 S 470 220, 520 260 S 560 380, 470 400 S 380 330, 330 300 S 230 290, 170 300 S 60 300, 70 230 Z"/>
+              <path d="M240 90 C 270 60, 330 70, 330 110 S 290 150, 260 140 Z"/>
+              <path d="M380 300 C 420 280, 500 300, 520 340 S 470 420, 420 410 S 360 340, 380 300Z"/>
+            </g>
+            <g fill="#7fb4c8" opacity=".7"><path d="M300 175 C 330 165, 360 190, 350 215 S 300 220, 300 175Z"/></g>
+          </svg>
+        </div>
+        <div class="header">
+          <div class="lfgicon"></div>
+          <div><div class="dname">Wailing Caverns</div><div class="dlvl">Level 15 – 24 · 8 bosses · 11 quests</div></div>
+          <div class="spacer"></div>
+          <div class="floor"><span class="arrow">◀</span>Level 1 / 1<span class="arrow">▶</span></div>
+          <span class="btn">Journal</span>
+        </div>
+
+        <div class="entrance" style="left:150px; top:262px"><i></i>Entrance</div>
+        <div class="boss dead" style="left:200px; top:215px; background:#5a3a6a">LC<span class="num">1</span></div>
+        <div class="boss" style="left:285px; top:115px; background:#3a6a8a">LA<span class="num">2</span></div>
+        <div class="boss" style="left:330px; top:205px; background:#2f6b55">K<span class="num">3</span></div>
+        <div class="boss" style="left:420px; top:250px; background:#6a4a7a">LP<span class="num">4</span></div>
+        <div class="boss" style="left:470px; top:330px; background:#4a5a3a">S<span class="num">5</span></div>
+        <div class="boss" style="left:405px; top:360px; background:#7a3a3a">LS<span class="num">6</span></div>
+        <div class="boss" style="left:520px; top:395px; background:#3a7a3a">VE<span class="num">7</span></div>
+        <div class="boss" style="left:560px; top:300px; background:#555">MD<span class="num">8</span></div>
+
+        <div class="tooltip" style="left:350px; top:140px">
+          <div class="t">Kresh</div>
+          <div>Level 20 · Boss 3 / 8</div>
+          <div class="g">3 drops</div>
+          <div class="b">Click: loot · Shift-click: move pin</div>
+        </div>
+        <div class="footer"><b>Right-click</b> one map up · <b>Wheel</b> zoom · <b>Drag</b> move</div>
+      </div>
+
+      <div class="side">
+        <div class="tabs"><span class="btn sel">Bosses</span><span class="btn">Quests 11</span></div>
+        <div class="list">
+          <div class="li"><span class="mini" style="background:#5a3a6a">LC</span><div>Lord Cobrahn<br><span class="lv">✕ killed</span></div></div>
+          <div class="li"><span class="mini" style="background:#3a6a8a">LA</span><div>Lady Anacondra<br><span class="lv">1 drop</span></div></div>
+          <div class="li sel"><span class="mini" style="background:#2f6b55">K</span><div>Kresh<br><span class="lv">3 drops</span></div></div>
+          <div class="li"><span class="mini" style="background:#6a4a7a">LP</span><div>Lord Pythas<br><span class="lv">2 drops</span></div></div>
+          <div class="li"><span class="mini" style="background:#4a5a3a">S</span><div>Skum<br><span class="lv">2 drops</span></div></div>
+          <div class="li"><span class="mini" style="background:#7a3a3a">LS</span><div>Lord Serpentis<br><span class="lv">4 drops</span></div></div>
+          <div class="li"><span class="mini" style="background:#3a7a3a">VE</span><div>Verdan the Everliving<br><span class="lv">3 drops</span></div></div>
+          <div class="li"><span class="mini" style="background:#555">MD</span><div>Mutanus the Devourer<br><span class="lv">4 drops · final boss</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="frame live">
+    <div class="titlebar">Live view<span class="grip">⠿ drag</span><span class="close">✕</span></div>
+    <div class="minimap">
+      <svg viewBox="0 0 330 300" preserveAspectRatio="none">
+        <g fill="#c99b62" stroke="#7a5426" stroke-width="2"><path d="M20 60 C 90 20, 250 30, 310 70 L 300 110 C 230 80, 100 90, 30 110Z"/>
+        <path d="M120 120 C 160 110, 200 140, 190 170 S 210 240, 150 290 L 60 300 C 70 230, 120 210, 120 170Z" fill="#b28a52"/>
+        <path d="M230 130 C 290 120, 330 160, 320 220 L 320 300 L 240 300 C 260 240, 220 190, 230 130Z" fill="#d4b07a"/></g>
+        <path d="M30 75 C 120 50, 230 60, 300 85" stroke="#4fb6d6" stroke-width="10" fill="none"/>
+      </svg>
+      <div class="me"></div>
+      <div class="dot" style="left:59%; top:44%; background:#f58cba"></div>
+      <div class="dot" style="left:44%; top:66%; background:#c79c6e"></div>
+      <div class="dot" style="left:72%; top:62%; background:#69ccf0"></div>
+      <div class="tooltip" style="left:205px; top:118px; min-width:0">Moon</div>
+    </div>
+    <div class="bar"><span>Wheel: zoom (6 levels)</span><span>radius 150 yd</span></div>
+    <div class="names">
+      <span style="color:#f58cba">● Moon</span><span style="color:#c79c6e">● Cain</span><span style="color:#69ccf0">● Nonchalant</span><span style="color:#777">● Троген (far)</span>
+    </div>
+  </div>
+</div>
+<p class="note"><b>Élő nézet:</b> a valódi minimap, felnagyítva, egy saját keretben a térkép <b>mellett</b>. A címsoránál fogva bárhova húzható, és megjegyzi a helyét. A csapattársak pöttyeit és a hover-neveket a játék rajzolja. Alul a csapat névsora osztályszínnel; aki 100 yardon kívül van, az szürke. A "Terrain" gomb kikerült, a terep mindig látszik.<br>
+<b>Boss-ikonok:</b> a játék maga rajzolja a portrékat a boss modelljéből, nincs átvett kép. A sorszám a sorrend, a megölt boss szürke és át van húzva (a mentés reset-ig tart). Kattintásra jön a loot-ablak.</p>
+
+<!-- ============================================================ 2 -->
+<h2>2 · Loot-ablak (kattintás egy bossra)</h2>
+<div class="row">
+  <div class="frame loot">
+    <div class="portrait-icon">☠</div>
+    <div class="titlebar">Kresh<span class="close">✕</span></div>
+    <div class="loothead">
+      <div class="bigp" style="background:#2f6b55"></div>
+      <div><div class="dname" style="font-size:15px">Kresh</div><div class="dlvl">Level 20 · Boss 3 / 8 · Wailing Caverns</div></div>
+    </div>
+    <div class="item"><span class="ico" style="background:linear-gradient(135deg,#8a6a3a,#3a2a14)"></span><div><span style="color:var(--q-rare)">Kresh's Back</span><small>Off Hand · Shield</small></div></div>
+    <div class="item"><span class="ico" style="background:linear-gradient(135deg,#7ab04a,#2a4a14)"></span><div><span style="color:var(--q-uncommon)">Worn Turtle Shell Shield</span><small>Off Hand · Shield</small></div></div>
+    <div class="item"><span class="ico" style="background:linear-gradient(135deg,#3aa06a,#14402a)"></span><div><span style="color:var(--q-uncommon)">Cloak of Hermitic Bliss</span><small>Back · Cloth</small></div></div>
+    <div class="note" style="padding:4px 12px 12px; font-size:11px; color:#aaa">Hover: item tooltip · Shift-click: link a chatbe · Ctrl-click: felpróbálás</div>
+  </div>
+  <p class="note" style="max-width:520px"><b>Item-adatok:</b> a nevet, a minőség-színt, az ikont és a tooltipet a játék tölti be az item ID-ból. Ugyanazok a tooltipek, mint a táskában. Az ablak a boss-ikon mellé nyílik, és egyszerre egy lehet nyitva.</p>
+</div>
+
+<!-- ============================================================ 3 -->
+<h2>3 · Questek fül</h2>
+<div class="row">
+  <div class="frame" style="width:380px">
+    <div class="titlebar">Wailing Caverns – Quests<span class="close">✕</span></div>
+    <div class="tabs"><span class="btn">Bosses</span><span class="btn sel">Quests 11</span><span class="spacer"></span><span class="btn small">My faction</span></div>
+    <div style="padding:4px 4px 10px">
+      <div class="qgroup">AVAILABLE</div>
+      <div class="q"><span class="fac"><i class="a">A</i><i class="h">H</i></span><span></span><span class="qn"><small>[17]</small>Deviate Hides</span><span class="st avail">!</span></div>
+      <div class="q"><span class="fac"><i class="a">A</i><i class="h">H</i></span><span></span><span class="qn"><small>[18]</small>Smart Drinks</span><span class="st inlog">?</span></div>
+      <div class="q"><span class="fac"><i class="h">H</i></span><span class="chain">⛓</span><span class="qn"><small>[22]</small>Leaders of Fang</span><span class="st avail">!</span></div>
+      <div class="q"><span class="fac"><i class="h">H</i></span><span></span><span class="qn"><small>[18]</small>Serpentbloom</span><span class="st done">✓</span></div>
+      <div class="q"><span class="fac"><i class="a">A</i></span><span class="chain">⛓</span><span class="qn"><small>[20]</small>The Glowing Shard</span><span class="st locked">🔒</span></div>
+      <div class="qgroup">OTHER FACTION</div>
+      <div class="q" style="opacity:.45"><span class="fac"><i class="a">A</i></span><span></span><span class="qn"><small>[21]</small>Deviate Eradication</span><span class="st"></span></div>
+    </div>
+  </div>
+  <div class="tooltip" style="position:relative; width:330px; margin-top:60px">
+    <div class="t">Leaders of Fang</div>
+    <div>Level 22 · <span style="color:#ff5a5a">Horde</span></div>
+    <div class="g" style="margin:4px 0">Bring the Gems of Cobrahn, Anacondra, Pythas and Serpentis to Nara Wildmane in Thunder Bluff.</div>
+    <div><span style="color:var(--gold)">Quest giver:</span> Nara Wildmane · Thunder Bluff 75.6, 31.6</div>
+    <div style="margin-top:4px"><span style="color:var(--gold)">Chain:</span> <span class="done">✓ Hamuul Runetotem</span> → <span class="avail">Nara Wildmane</span> → <b>Leaders of Fang</b></div>
+    <div style="margin-top:4px"><span style="color:var(--gold)">Reward (choose):</span> <span style="color:var(--q-uncommon)">Crescent Staff</span>, <span style="color:var(--q-uncommon)">Wingblade</span></div>
+    <div class="b" style="margin-top:4px">Click: show quest giver on the map</div>
+  </div>
+</div>
+<div class="note">
+<table class="legend">
+<tr><td><span class="fac"><i class="a">A</i><i class="h">H</i></span></td><td>mindkét frakció &nbsp;·&nbsp; <span class="fac" style="display:inline-flex"><i class="a">A</i></span> csak Alliance &nbsp;·&nbsp; <span class="fac" style="display:inline-flex"><i class="h">H</i></span> csak Horde (a beépített frakció-ikonokkal)</td></tr>
+<tr><td><span class="chain">⛓</span></td><td>quest chain: előzmény-quest kell hozzá; hoverre a teljes lánc, kész lépések zölddel</td></tr>
+<tr><td><span class="st avail">!</span> <span class="st inlog">?</span> <span class="st done">✓</span> <span class="st locked">🔒</span></td><td>felvehető · a quest logodban van · kész · zárolt (hiányzik az előzmény)</td></tr>
+</table>
+</div>
+
+<!-- ============================================================ 4 -->
+<h2>4 · Dungeon Journal (Journal gomb, minimap-gomb vagy /fdmap journal)</h2>
+<div class="frame journal">
+  <div class="portrait-icon">📖</div>
+  <div class="titlebar">Dungeon Journal<span class="close">✕</span></div>
+  <div class="jtools"><span class="search">Search dungeons, bosses, items…</span><span class="btn sel">All</span><span class="btn">Classic</span><span class="btn">Forever</span><span class="spacer"></span><span class="tag">Your level: 21</span></div>
+  <div class="grid">
+    <div class="card"><div class="bg" style="background:linear-gradient(135deg,#7a2a14,#2a0e06)"></div><span class="lfg" style="background:radial-gradient(#e0702a,#5a1a08)"></span><div class="cap"><div class="cn">Ragefire Chasm</div><div class="cl easy">Level 13 – 18</div></div></div>
+    <div class="card" style="box-shadow: inset 0 0 0 2px #3f3"><div class="bg" style="background:linear-gradient(135deg,#2f6b45,#0e2414)"></div><span class="lfg" style="background:radial-gradient(#5fd37a,#14401f)"></span><span class="badge">you are here</span><div class="cap"><div class="cn">Wailing Caverns</div><div class="cl ok">Level 15 – 24</div></div></div>
+    <div class="card"><div class="bg" style="background:linear-gradient(135deg,#6a5a3a,#201a10)"></div><span class="lfg" style="background:radial-gradient(#c8b07a,#4a3a1a)"></span><div class="cap"><div class="cn">The Deadmines</div><div class="cl ok">Level 17 – 26</div></div></div>
+    <div class="card"><div class="bg" style="background:linear-gradient(135deg,#5a4a6a,#1a1420)"></div><span class="lfg" style="background:radial-gradient(#a08ac8,#2a1a4a)"></span><div class="cap"><div class="cn">Shadowfang Keep</div><div class="cl ok">Level 20 – 30</div></div></div>
+    <div class="card"><div class="bg" style="background:linear-gradient(135deg,#2a4a6a,#0a1420)"></div><span class="lfg" style="background:radial-gradient(#6ab0e0,#0a2a4a)"></span><div class="cap"><div class="cn">Blackfathom Deeps</div><div class="cl hard">Level 24 – 32</div></div></div>
+    <div class="card"><div class="bg" style="background:linear-gradient(135deg,#6a2a6a,#200a20)"></div><span class="lfg" style="background:radial-gradient(#d07ad0,#3a0a3a)"></span><span class="badge">Forever</span><div class="cap"><div class="cn">City of Dalaran</div><div class="cl hard">Level 28 – 35</div></div></div>
+    <div class="card"><div class="bg" style="background:linear-gradient(135deg,#3a4a2a,#10140a)"></div><span class="lfg" style="background:radial-gradient(#9ab06a,#2a3a0a)"></span><span class="badge">Forever</span><div class="cap"><div class="cn">Ruins of Lordaeron</div><div class="cl ok">Level 15 – 22</div></div></div>
+    <div class="card"><div class="bg" style="background:linear-gradient(135deg,#4a3a2a,#140e08)"></div><span class="lfg" style="background:radial-gradient(#c09060,#3a200a)"></span><span class="badge">Forever</span><div class="cap"><div class="cn">Hall of Thanes</div><div class="cl ok">Level 13 – 20</div></div></div>
+  </div>
+</div>
+<p class="note">A kártyák háttere a játék beépített dungeon-képe (Encounter Journal / LFG ikonok, ahol a kliensben megvannak). Szintszín: <span class="ok">zöld</span> = neked való, <span class="hard">narancs</span> = nehéz, <span class="easy">szürke</span> = könnyű. Kattintásra a dungeon térképe nyílik meg a bossokkal és questekkel; a térkép tetején vissza lehet lépni a listára.</p>
+
+<!-- ============================================================ 5 -->
+<h2>5 · Boss-hely rögzítő (amíg nincs boss-pozíció)</h2>
+<div class="banner"><span class="bigp" style="background:#2f6b55"></span><div><b>Kresh defeated!</b><br>Click on the dungeon map where Kresh was. <span style="color:#aaa">(saved for this dungeon)</span></div><span class="spacer"></span><span class="btn small">Skip</span></div>
+<p class="note">Boss halála után (ENCOUNTER_END / boss NPC halála) ez a sáv jelenik meg a térkép tetején. Egy kattintás a térképen, és a boss-ikon oda kerül. Ugyanez kézzel is megy: <b>Shift + kattintás</b> egy boss-ikonra a listában, majd kattintás a térképen. A mentéseket beolvasom, és a következő verzióban mindenki megkapja.</p>
+
+<!-- ============================================================ 6 -->
+<h2>6 · Térkép-ikonok a zóna- és kontinenstérképen</h2>
+<div class="row" style="align-items:center">
+  <table class="legend">
+    <tr><td><span class="entrance" style="position:static; transform:none"><i></i></span></td><td><b style="color:var(--gold); font-weight:normal">Dungeon bejárat</b> (beépített "Dungeon" ikon): hover → név + szint, bal klikk → a dungeon térképe</td></tr>
+    <tr><td><span style="display:inline-block; width:14px; height:12px; background:#3a2a1a; border:2px solid #b08a4a; border-radius:8px 8px 2px 2px"></span></td><td><b style="color:var(--gold); font-weight:normal">Barlang</b>: kis barlang-ikon, ha a játék tud róla (még tesztelendő), különben saját gyűjtésből</td></tr>
+  </table>
+</div>
+
+<!-- ============================================================ 7 -->
+<h2>7 · Addon ikon</h2>
+<div class="row" style="align-items:center">
+  <div class="addonicon"><svg viewBox="0 0 64 64" width="64" height="64"><path d="M12 14 L28 10 L40 16 L54 12 L54 50 L40 54 L28 48 L12 52Z" fill="#e9d6a0" stroke="#5a3d17" stroke-width="2"/><path d="M28 10 L28 48 M40 16 L40 54" stroke="#8a6a32" stroke-width="1.5"/><circle cx="34" cy="31" r="7" fill="none" stroke="#7a1a10" stroke-width="2.5"/><path d="M31 28 L37 34 M37 28 L31 34" stroke="#7a1a10" stroke-width="2"/></svg></div>
+  <p class="note" style="max-width:640px">A beépített <b>INV_Misc_Map_01</b> térkép-ikon (a játékban így néz ki: feltekert térkép). Ez jelenik meg az AddOns listában, a minimap-gombon és az Addon Compartmentben. Nem kell hozzá saját képfájl. Ha később saját ikon kell, 64×64-es TGA-t rajzolunk.</p>
+</div>
+
+</body>
+</html>

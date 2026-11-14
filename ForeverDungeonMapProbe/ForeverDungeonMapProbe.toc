@@ -1,0 +1,8 @@
+## Interface: 16001
+## Title: ForeverDungeonMap Probe
+## Notes: Diagnostic only: tests map and position APIs inside dungeons. /fdm
+## Author: kiszeldaniel
+## Version: 0.1.0
+## SavedVariables: ForeverDungeonMapProbeDB
+
+Probe.lua

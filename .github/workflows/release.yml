@@ -1,0 +1,43 @@
+# Builds the addon zip with BigWigsMods/packager and uploads it to CurseForge when a
+# version tag (v0.7.0, 0.7.0, ...) is pushed. A GitHub release is made as well.
+#
+# Repository settings the owner fills in (Settings > Secrets and variables > Actions):
+#   secret   CF_API_KEY               CurseForge API token (https://authors.curseforge.com/account/api-tokens)
+#   variable CURSEFORGE_PROJECT_ID    the CurseForge project id (placeholder until the project exists)
+#   variable CURSEFORGE_GAME_VERSION  optional: the game version CurseForge lists for WoW Forever
+#                                     (e.g. "1.15.7"); without it the packager maps "## Interface: 16001"
+#   secret   WAGO_API_TOKEN           optional, for Wago Addons (also set "-a <wago id>" below)
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+      - "[0-9]*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      CF_API_KEY: ${{ secrets.CF_API_KEY }}
+      WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
+      GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Check out the repository with its tags
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # The packager reads .pkgmeta and the changelog from its top directory (the addon folder).
+      - name: Put the packager files next to the addon
+        run: cp .pkgmeta CHANGELOG.md ForeverDungeonMap/
+
+      - name: Package and upload
+        uses: BigWigsMods/packager@v2
+        with:
+          args: >-
+            -t ForeverDungeonMap
+            -p ${{ vars.CURSEFORGE_PROJECT_ID }}
+            ${{ vars.CURSEFORGE_GAME_VERSION && format('-g {0}', vars.CURSEFORGE_GAME_VERSION) || '' }}

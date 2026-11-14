@@ -1,0 +1,23 @@
+# packager output and copies the release workflow makes
+.release/
+ForeverDungeonMap/.pkgmeta
+ForeverDungeonMap/CHANGELOG.md
+
+# Python caches of the data generators and the harness
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# scratch and local tool output
+scratch/
+*.bak
+*.tmp
+*.log
+tools/harness/*.json
+
+# editors and OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db

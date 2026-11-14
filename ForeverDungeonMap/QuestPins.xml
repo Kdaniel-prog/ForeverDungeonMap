@@ -1,0 +1,12 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+    <!-- Quest giver / turn-in pin on zone and continent maps (QuestPins.lua builds its textures
+         from Theme.lua in OnLoad). No OnEnter/OnLeave/OnMouseUp scripts here: the map canvas wires
+         them to the mixin's OnMouseEnter/OnMouseLeave/OnMouseUp itself and asserts that a pin
+         template has none (Blizzard_MapCanvas.lua:309 "assertion failed!"). -->
+    <Frame name="ForeverDungeonMapQuestPinTemplate" mixin="ForeverDungeonMapQuestPinMixin" enableMouse="true" virtual="true">
+        <Scripts>
+            <OnLoad method="OnLoad"/>
+        </Scripts>
+    </Frame>
+</Ui>

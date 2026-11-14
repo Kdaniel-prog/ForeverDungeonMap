@@ -1,0 +1,1701 @@
+{
+ "sources": [
+  "https://www.wowhead.com/forever",
+  "https://www.warcrafttavern.com/forever/guides/the-ruins-of-lordaeron-quests/",
+  "https://wowforeverinfo.com/guides/ruins-of-lordaeron/",
+  "https://www.gamespot.com/articles/wow-forever-ruins-of-lordaeron-dungeon-guide-quests-bosses-and-loot/",
+  "https://www.zockify.com/",
+  "https://wowf.io/",
+  "https://questing.wiki/",
+  "https://wowbuddyguides.com/",
+  "https://www.method.gg/",
+  "https://grindnstrat.com/",
+  "https://wowforever.be/",
+  "https://foreverchanges.pro/",
+  "https://foreverdb.net/",
+  "https://warcraftmaps.com/",
+  "https://mmonster.co/",
+  "https://bindonforever.com/",
+  "https://bytetavern.com/",
+  "https://forg.gg/",
+  "https://wowseer.gg/"
+ ],
+ "dungeons": {
+  "2959": "City of Dalaran",
+  "2998": "Excavation Site: Wetlands",
+  "2999": "Ruins of Lordaeron",
+  "3065": "The Hall of Thanes",
+  "36": "The Deadmines",
+  "189": "Scarlet Monastery"
+ },
+ "quests": {
+  "95250": {
+   "dungeon": 2999,
+   "name": "Abominable Creatures",
+   "faction": "Alliance",
+   "lvl": 21,
+   "req": 16,
+   "start": {
+    "kind": "npc",
+    "name": "Captain Truman",
+    "npcID": 265701,
+    "zone": "inside",
+    "note": "Right at the dungeon entrance: step out of the entrance portal and turn left (north); he stands on the brick path, not the grass.",
+    "near": "entrance"
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Captain Truman",
+    "npcID": 265701,
+    "zone": "inside",
+    "near": "entrance"
+   },
+   "pre": [],
+   "next": [],
+   "sources": [
+    "https://www.wowhead.com/forever/quest=95250",
+    "https://www.wowhead.com/forever/npc=265701/captain-truman",
+    "https://www.warcrafttavern.com/forever/guides/the-ruins-of-lordaeron-quests/",
+    "https://www.zockify.com/forever/dungeons/ruins-of-lordaeron/",
+    "https://wowf.io/en/dungeons/ruins-of-lordaeron/guide"
+   ]
+  },
+  "97288": {
+   "dungeon": 2999,
+   "name": "Unending Torment",
+   "faction": "Horde",
+   "lvl": 21,
+   "req": 16,
+   "start": {
+    "kind": "item",
+    "name": "Abominable Head",
+    "itemID": 280438,
+    "zone": "inside",
+    "dropBy": "The Baron"
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Master Apothecary Faranell",
+    "npcID": 2055,
+    "zone": "Undercity",
+    "x": 48.4,
+    "y": 69.4
+   },
+   "pre": [],
+   "next": [
+    97289,
+    97290,
+    97291,
+    97292
+   ],
+   "sources": [
+    "https://www.wowhead.com/forever/quest=97288",
+    "https://www.wowhead.com/forever/quest=97289",
+    "https://www.wowhead.com/forever/quest=97290",
+    "https://www.wowhead.com/forever/quest=97291",
+    "https://www.wowhead.com/forever/quest=97292",
+    "https://www.warcrafttavern.com/forever/guides/the-ruins-of-lordaeron-quests/",
+    "https://www.zockify.com/forever/dungeons/ruins-of-lordaeron/"
+   ]
+  },
+  "92401": {
+   "dungeon": 2999,
+   "name": "A Frightened Request",
+   "faction": "Horde",
+   "lvl": 22,
+   "req": 15,
+   "start": {
+    "kind": "npc",
+    "name": "Tabitha Heartweaver",
+    "npcID": 250686,
+    "zone": "Silverpine Forest",
+    "x": 44.6,
+    "y": 42.8
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Tabitha Heartweaver",
+    "npcID": 250686,
+    "zone": "Silverpine Forest",
+    "x": 44.6,
+    "y": 42.8
+   },
+   "pre": [],
+   "next": [],
+   "sources": [
+    "https://www.wowhead.com/forever/quest=92401",
+    "https://www.wowhead.com/forever/npc=250686/tabitha-heartweaver",
+    "https://questing.wiki/wow-forever/quests/92401/",
+    "https://www.warcrafttavern.com/forever/guides/the-ruins-of-lordaeron-quests/"
+   ]
+  },
+  "95195": {
+   "dungeon": 2999,
+   "name": "Bloodied Insignia",
+   "faction": "Alliance",
+   "lvl": 22,
+   "req": 16,
+   "start": {
+    "kind": "item",
+    "name": "Bloodied Insignia",
+    "itemID": 268535,
+    "zone": "inside",
+    "dropBy": "undead mobs"
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "General Marcus Jonathan",
+    "npcID": 466,
+    "zone": "Stormwind City",
+    "x": 64.6,
+    "y": 75.8
+   },
+   "pre": [],
+   "next": [],
+   "sources": [
+    "https://www.wowhead.com/forever/quest=95195",
+    "https://questing.wiki/wow-forever/quests/95195/",
+    "https://www.zockify.com/forever/dungeons/ruins-of-lordaeron/"
+   ]
+  },
+  "95189": {
+   "dungeon": 2999,
+   "name": "Crest of Lordaeron",
+   "faction": "Alliance",
+   "lvl": 22,
+   "req": 16,
+   "start": {
+    "kind": "item",
+    "name": "Crest of Lordaeron",
+    "itemID": 268579,
+    "zone": "inside",
+    "spots": [
+     "Crypt by the fountain: from the entrance go south to the fountain in the spider courtyard, turn right to a crypt with a closed door. Open the door, a banshee comes out, and the crest hangs on the wall behind her.",
+     "Tower to the right of Bjork's patrol area (the room with a staircase across from Bjork's courtyard): the crest lies on the floor below the stairs. A treasure chest can also spawn in this room.",
+     "Behind Bjork's patrol, north-west of Bjork: on the back wall inside the small pavilion / temple building.",
+     "Tower to the left of the spider courtyard near the start, just past Witherfang: climb the spiral stairs inside, and the crest is on the outside wall at the top.",
+     "Tower just after The Abandoned (Market Street): climb the tower, and the crest is on the outside wall at the top (gargoyle rooftop towers)."
+    ]
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Lady Dena Kennedy",
+    "npcID": 15991,
+    "zone": "Stormwind City",
+    "x": 69.8,
+    "y": 28.6
+   },
+   "pre": [],
+   "next": [],
+   "sources": [
+    "https://www.wowhead.com/forever/quest=95189",
+    "https://questing.wiki/wow-forever/quests/95189/",
+    "https://www.warcrafttavern.com/forever/guides/the-ruins-of-lordaeron-quests/",
+    "https://www.zockify.com/forever/dungeons/ruins-of-lordaeron/",
+    "https://wowbuddyguides.com/forever/guides/ruins-of-lordaeron",
+    "https://www.method.gg/wow-forever/dungeons/ruins-of-lordaeron",
+    "https://grindnstrat.com/ruins-of-lordaeron-dungeon-guide/",
+    "https://github.com/fitzforge/polestar/issues/1870"
+   ]
+  },
+  "95204": {
+   "dungeon": 2999,
+   "name": "Crest of Lordaeron",
+   "faction": "Horde",
+   "lvl": 22,
+   "req": 16,
+   "start": {
+    "kind": "item",
+    "name": "Crest of Lordaeron",
+    "itemID": 275521,
+    "zone": "inside",
+    "spots": [
+     "Crypt by the fountain: from the entrance go south to the fountain in the spider courtyard, turn right to a crypt with a closed door. Open the door, a banshee comes out, and the crest hangs on the wall behind her.",
+     "Tower to the right of Bjork's patrol area (the room with a staircase across from Bjork's courtyard): the crest lies on the floor below the stairs. A treasure chest can also spawn in this room.",
+     "Behind Bjork's patrol, north-west of Bjork: on the back wall inside the small pavilion / temple building.",
+     "Tower to the left of the spider courtyard near the start, just past Witherfang: climb the spiral stairs inside, and the crest is on the outside wall at the top.",
+     "Tower just after The Abandoned (Market Street): climb the tower, and the crest is on the outside wall at the top (gargoyle rooftop towers)."
+    ]
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Oran Snakewrithe",
+    "npcID": 7825,
+    "zone": "Undercity",
+    "x": 73.4,
+    "y": 32.4
+   },
+   "pre": [],
+   "next": [],
+   "sources": [
+    "https://www.wowhead.com/forever/quest=95204",
+    "https://questing.wiki/wow-forever/quests/95204/",
+    "https://www.zockify.com/forever/dungeons/ruins-of-lordaeron/"
+   ]
+  },
+  "92421": {
+   "dungeon": 2999,
+   "name": "Light's Justice",
+   "faction": "Horde",
+   "lvl": 22,
+   "req": 15,
+   "start": {
+    "kind": "npc",
+    "name": "Morbin Lightbane",
+    "npcID": 266484,
+    "zone": "Undercity",
+    "x": 57.8,
+    "y": 89.8
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Morbin Lightbane",
+    "npcID": 266484,
+    "zone": "Undercity",
+    "x": 57.8,
+    "y": 89.8
+   },
+   "pre": [],
+   "next": [],
+   "sources": [
+    "https://www.wowhead.com/forever/quest=92421",
+    "https://questing.wiki/wow-forever/quests/92421/",
+    "https://www.warcrafttavern.com/forever/guides/the-ruins-of-lordaeron-quests/"
+   ]
+  },
+  "92415": {
+   "dungeon": 2999,
+   "name": "Remember That I Love You",
+   "faction": "Alliance",
+   "lvl": 22,
+   "req": 15,
+   "start": {
+    "kind": "item",
+    "name": "Blood-Stained Parchment",
+    "itemID": 251270,
+    "zone": "inside",
+    "note": "Rath'mael's graveyard: crumpled paper lying beside Edward Heartweaver's body (west side of the graveyard, by a gravestone near a ghoul pack). Loot it and use it from bags.",
+    "near": "Rath'mael"
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Orphan Matron Nightingale",
+    "npcID": 14450,
+    "zone": "Stormwind City",
+    "x": 47.2,
+    "y": 38.4
+   },
+   "pre": [],
+   "next": [
+    95161
+   ],
+   "sources": [
+    "https://www.wowhead.com/forever/quest=92415",
+    "https://www.wowhead.com/forever/quest=95161",
+    "https://questing.wiki/wow-forever/quests/92415/",
+    "https://questing.wiki/wow-forever/quests/95161/",
+    "https://www.warcrafttavern.com/forever/guides/the-ruins-of-lordaeron-quests/"
+   ]
+  },
+  "95216": {
+   "dungeon": 2999,
+   "name": "The New Plague",
+   "faction": "Horde",
+   "lvl": 22,
+   "req": 16,
+   "start": {
+    "kind": "npc",
+    "name": "Theodore Griffs",
+    "npcID": 11835,
+    "zone": "Undercity",
+    "x": 46.6,
+    "y": 71.9
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Theodore Griffs",
+    "npcID": 11835,
+    "zone": "Undercity",
+    "x": 46.6,
+    "y": 71.9
+   },
+   "pre": [
+    447,
+    450,
+    451
+   ],
+   "next": [],
+   "sources": [
+    "https://www.wowhead.com/forever/quest=95216",
+    "https://www.wowhead.com/forever/quest=451",
+    "https://questing.wiki/wow-forever/quests/95216/",
+    "https://www.wowhead.com/forever/news/new-prerequisites-required-for-ruins-of-lordaeron-dungeon-quests-in-wow-forever-383769",
+    "https://www.zockify.com/forever/dungeons/ruins-of-lordaeron/"
+   ]
+  },
+  "92422": {
+   "dungeon": 2999,
+   "name": "The Wrath of Rath'mael",
+   "faction": "Horde",
+   "lvl": 22,
+   "req": 15,
+   "start": {
+    "kind": "npc",
+    "name": "Deathguard Kristof",
+    "npcID": 251001,
+    "zone": "Tirisfal Glades",
+    "x": 65.2,
+    "y": 60.1
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Deathguard Kristof",
+    "npcID": 251001,
+    "zone": "Tirisfal Glades",
+    "x": 65.2,
+    "y": 60.1
+   },
+   "pre": [
+    356,
+    99156
+   ],
+   "next": [],
+   "sources": [
+    "https://www.wowhead.com/forever/quest=92422",
+    "https://www.wowhead.com/forever/quest=356",
+    "https://www.wowhead.com/forever/quest=99156",
+    "https://questing.wiki/wow-forever/quests/92422/",
+    "https://www.warcrafttavern.com/forever/guides/the-ruins-of-lordaeron-quests/",
+    "https://www.zockify.com/forever/dungeons/ruins-of-lordaeron/"
+   ]
+  },
+  "98423": {
+   "dungeon": 3065,
+   "name": "The Treaty of Understanding",
+   "faction": "Alliance",
+   "lvl": 16,
+   "req": 9,
+   "start": {
+    "kind": "item",
+    "name": "Treaty of Understanding",
+    "itemID": 281030,
+    "zone": "inside",
+    "note": "Stone tablet behind a vault door in the Reliquary of Kings, the final boss (Durgen Dirgehammer) area at the end of the dungeon. Click it, then use the item from bags.",
+    "near": "Durgen Dirgehammer"
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "King Magni Bronzebeard",
+    "npcID": 2784,
+    "zone": "Ironforge",
+    "x": 39.4,
+    "y": 55.8
+   },
+   "pre": [],
+   "next": [],
+   "sources": [
+    "https://www.wowhead.com/forever/quest=98423",
+    "https://questing.wiki/wow-forever/quests/98423/",
+    "https://www.zockify.com/forever/dungeons/the-hall-of-thanes/",
+    "https://wowforever.be/guides/dungeons/hall-of-thanes/quests/"
+   ]
+  },
+  "96395": {
+   "dungeon": 3065,
+   "name": "An Ancient Grudge",
+   "faction": "Both",
+   "lvl": 15,
+   "req": 10,
+   "start": {
+    "kind": "npc",
+    "name": "Ghostly Attendant",
+    "zone": "inside",
+    "note": "Anvilmar's Rest: the room right before Faldrim Anvilmar (described as the second room / west wing, early in the dungeon).",
+    "near": "Faldrim Anvilmar"
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Ghostly Attendant",
+    "zone": "inside",
+    "near": "Faldrim Anvilmar"
+   },
+   "pre": [],
+   "next": [],
+   "sources": [
+    "https://www.wowhead.com/forever/quest=96395",
+    "https://questing.wiki/wow-forever/quests/96395/",
+    "https://wowforever.be/guides/dungeons/hall-of-thanes/quests/",
+    "https://www.method.gg/wow-forever/dungeons/hall-of-thanes"
+   ]
+  },
+  "96403": {
+   "dungeon": 3065,
+   "name": "Important Heirlooms",
+   "faction": "Both",
+   "lvl": 15,
+   "req": 10,
+   "start": {
+    "kind": "npc",
+    "name": "Thom Filch",
+    "npcID": 265003,
+    "zone": "Ironforge",
+    "x": 32.6,
+    "y": 44.6
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Thom Filch",
+    "npcID": 265003,
+    "zone": "Ironforge",
+    "x": 32.6,
+    "y": 44.6
+   },
+   "pre": [],
+   "next": [],
+   "sources": [
+    "https://www.wowhead.com/forever/quest=96403",
+    "https://www.wowhead.com/forever/npc=265003/thom-filch",
+    "https://questing.wiki/wow-forever/quests/96403/",
+    "https://wowforever.be/guides/dungeons/hall-of-thanes/quests/"
+   ]
+  },
+  "96394": {
+   "dungeon": 3065,
+   "name": "The Restless Dead",
+   "faction": "Alliance",
+   "lvl": 15,
+   "req": 10,
+   "start": {
+    "kind": "npc",
+    "name": "Afadra Dunwall",
+    "npcID": 264943,
+    "zone": "Ironforge",
+    "x": 33.0,
+    "y": 48.0
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Afadra Dunwall",
+    "npcID": 264943,
+    "zone": "Ironforge",
+    "x": 33.0,
+    "y": 48.0
+   },
+   "pre": [],
+   "next": [],
+   "sources": [
+    "https://www.wowhead.com/forever/quest=96394",
+    "https://www.wowhead.com/forever/npc=264943/afadra-dunwall",
+    "https://questing.wiki/wow-forever/quests/96394/",
+    "https://www.zockify.com/forever/dungeons/the-hall-of-thanes/",
+    "https://wowforever.be/guides/dungeons/hall-of-thanes/quests/"
+   ]
+  },
+  "96393": {
+   "dungeon": 3065,
+   "name": "Old Ironforge Incursion",
+   "faction": "Alliance",
+   "lvl": 16,
+   "req": 9,
+   "start": {
+    "kind": "npc",
+    "name": "Earthseer Farsen",
+    "npcID": 264936,
+    "zone": "Dun Morogh",
+    "x": 64.8,
+    "y": 58.4
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "King Magni Bronzebeard",
+    "npcID": 2784,
+    "zone": "Ironforge",
+    "x": 39.4,
+    "y": 55.8
+   },
+   "pre": [
+    96391
+   ],
+   "next": [],
+   "sources": [
+    "https://www.wowhead.com/forever/quest=96393",
+    "https://www.wowhead.com/forever/quest=96391",
+    "https://questing.wiki/wow-forever/quests/96393/",
+    "https://questing.wiki/wow-forever/quests/96391/",
+    "https://foreverchanges.pro/quest/96390/nip-em-in-the-bud",
+    "https://www.zockify.com/forever/dungeons/the-hall-of-thanes/"
+   ]
+  },
+  "95161": {
+   "name": "Remember That I Love You",
+   "faction": "Alliance",
+   "lvl": 22,
+   "req": 15,
+   "start": {
+    "kind": "npc",
+    "name": "Orphan Matron Nightingale",
+    "npcID": 14450,
+    "zone": "Stormwind City",
+    "x": 47.2,
+    "y": 38.4
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Avette Fellwood",
+    "npcID": 228,
+    "zone": "Duskwood",
+    "x": 73.2,
+    "y": 44.8
+   },
+   "pre": [
+    92415
+   ],
+   "next": [],
+   "sources": [
+    "https://www.wowhead.com/forever/quest=95161",
+    "https://questing.wiki/wow-forever/quests/95161/"
+   ]
+  },
+  "97289": {
+   "name": "Unending Torment",
+   "faction": "Horde",
+   "lvl": 21,
+   "req": 16,
+   "start": {
+    "kind": "npc",
+    "name": "Master Apothecary Faranell",
+    "npcID": 2055,
+    "zone": "Undercity",
+    "x": 48.4,
+    "y": 69.4
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Unfinished Abomination",
+    "zone": "Undercity",
+    "x": 46.0,
+    "y": 62.1
+   },
+   "pre": [
+    97288
+   ],
+   "next": [],
+   "sources": [
+    "https://www.wowhead.com/forever/quest=97289"
+   ]
+  },
+  "97290": {
+   "name": "Unending Torment",
+   "faction": "Horde",
+   "lvl": 21,
+   "req": 16,
+   "start": {
+    "kind": "npc",
+    "name": "Unfinished Abomination",
+    "zone": "Undercity",
+    "x": 46.0,
+    "y": 62.1
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Master Apothecary Faranell",
+    "npcID": 2055,
+    "zone": "Undercity",
+    "x": 48.4,
+    "y": 69.4
+   },
+   "pre": [
+    97289
+   ],
+   "next": [],
+   "sources": [
+    "https://www.wowhead.com/forever/quest=97290"
+   ]
+  },
+  "97291": {
+   "name": "Unending Torment",
+   "faction": "Horde",
+   "lvl": 21,
+   "req": 16,
+   "start": {
+    "kind": "npc",
+    "name": "Master Apothecary Faranell",
+    "npcID": 2055,
+    "zone": "Undercity",
+    "x": 48.4,
+    "y": 69.4
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Master Apothecary Faranell",
+    "npcID": 2055,
+    "zone": "Undercity",
+    "x": 48.4,
+    "y": 69.4
+   },
+   "pre": [
+    97290
+   ],
+   "next": [],
+   "sources": [
+    "https://www.wowhead.com/forever/quest=97291"
+   ]
+  },
+  "97292": {
+   "name": "Unending Torment",
+   "faction": "Horde",
+   "lvl": 21,
+   "req": 16,
+   "start": {
+    "kind": "npc",
+    "name": "Master Apothecary Faranell",
+    "npcID": 2055,
+    "zone": "Undercity",
+    "x": 48.4,
+    "y": 69.4
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Master Apothecary Faranell",
+    "npcID": 2055,
+    "zone": "Undercity",
+    "x": 48.4,
+    "y": 69.4
+   },
+   "pre": [
+    97291
+   ],
+   "next": [],
+   "sources": [
+    "https://www.wowhead.com/forever/quest=97292"
+   ]
+  },
+  "96391": {
+   "name": "Underground Map",
+   "faction": "Alliance",
+   "lvl": 15,
+   "req": 9,
+   "start": {
+    "kind": "item",
+    "name": "Dark Iron Map",
+    "itemID": 274268,
+    "zone": "Dun Morogh",
+    "x": 76.7,
+    "y": 60.7,
+    "dropBy": "Dark Iron Spy"
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Earthseer Farsen",
+    "npcID": 264936,
+    "zone": "Dun Morogh",
+    "x": 64.8,
+    "y": 58.4
+   },
+   "pre": [],
+   "next": [
+    96393
+   ],
+   "sources": [
+    "https://www.wowhead.com/forever/quest=96391",
+    "https://questing.wiki/wow-forever/quests/96391/"
+   ]
+  },
+  "99156": {
+   "name": "Rear Guard Patrol",
+   "faction": "Horde",
+   "lvl": 13,
+   "req": 10,
+   "start": {
+    "kind": "npc",
+    "name": "Deathguard Linnea",
+    "npcID": 1495,
+    "zone": "Tirisfal Glades",
+    "x": 65.5,
+    "y": 60.2
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Deathguard Linnea",
+    "npcID": 1495,
+    "zone": "Tirisfal Glades",
+    "x": 65.5,
+    "y": 60.2
+   },
+   "pre": [
+    356
+   ],
+   "next": [
+    92422
+   ],
+   "sources": [
+    "https://www.wowhead.com/forever/quest=99156"
+   ]
+  },
+  "92432": {
+   "name": "An Alarming Request",
+   "faction": "Alliance",
+   "lvl": 33,
+   "req": 30,
+   "start": {
+    "kind": "npc",
+    "name": "Emissary Jacques",
+    "npcID": 247264,
+    "zone": "Hillsbrad Foothills",
+    "x": 48.3,
+    "y": 60.1
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Image of Archmage Modera",
+    "npcID": 269127,
+    "zone": "Silverpine Forest",
+    "x": 68.6,
+    "y": 45.2
+   },
+   "pre": [],
+   "next": [],
+   "sources": [
+    "https://foreverdb.net/quest/92432",
+    "https://warcraftmaps.com/quest/92432"
+   ]
+  },
+  "92459": {
+   "name": "Friend of the Kirin Tor",
+   "faction": "Alliance",
+   "lvl": 33,
+   "req": 24,
+   "start": {
+    "kind": "npc",
+    "name": "Image of Archmage Modera",
+    "npcID": 269127,
+    "zone": "Silverpine Forest",
+    "x": 68.6,
+    "y": 45.2
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Archmage Celindra",
+    "npcID": 252085,
+    "zone": "inside"
+   },
+   "pre": [
+    92458
+   ],
+   "next": [],
+   "sources": [
+    "https://foreverdb.net/quest/92459",
+    "https://mmonster.co/wow-forever/guides/dungeons/city-of-dalaran"
+   ]
+  },
+  "93680": {
+   "name": "Key to the City",
+   "faction": "Horde",
+   "lvl": 33,
+   "req": 30,
+   "start": {
+    "kind": "npc",
+    "name": "Magus Wordeen Voidglare",
+    "npcID": 2410,
+    "zone": "Hillsbrad Foothills",
+    "x": 61.6,
+    "y": 20.8
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Magus Wordeen Voidglare",
+    "npcID": 2410,
+    "zone": "Hillsbrad Foothills",
+    "x": 61.6,
+    "y": 20.8
+   },
+   "pre": [],
+   "next": [
+    545
+   ],
+   "sources": [
+    "https://mmonster.co/wow-forever/guides/dungeons/city-of-dalaran",
+    "https://www.warcrafttavern.com/forever/guides/city-of-dalaran-quests/"
+   ]
+  },
+  "92434": {
+   "name": "Blood in the Streets",
+   "faction": "Horde",
+   "lvl": 34,
+   "req": 30,
+   "start": {
+    "kind": "npc",
+    "name": "Magus Wordeen Voidglare",
+    "npcID": 2410,
+    "zone": "Hillsbrad Foothills",
+    "x": 61.6,
+    "y": 20.8
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Image of Archmage Modera",
+    "npcID": 269127,
+    "zone": "Silverpine Forest",
+    "x": 68.6,
+    "y": 45.1
+   },
+   "pre": [
+    545
+   ],
+   "next": [
+    96984
+   ],
+   "sources": [
+    "https://foreverdb.net/quest/92434",
+    "https://www.warcrafttavern.com/forever/guides/city-of-dalaran-quests/"
+   ]
+  },
+  "97287": {
+   "name": "Shrewd Negotiations",
+   "faction": "Horde",
+   "lvl": 33,
+   "req": 24,
+   "start": {
+    "kind": "npc",
+    "name": "Magus Wordeen Voidglare",
+    "npcID": 2410,
+    "zone": "Hillsbrad Foothills",
+    "x": 61.6,
+    "y": 20.8
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Image of Archmage Modera",
+    "npcID": 269127,
+    "zone": "Silverpine Forest",
+    "x": 68.6,
+    "y": 45.2
+   },
+   "pre": [
+    96984
+   ],
+   "next": [],
+   "sources": [
+    "https://foreverdb.net/quest/97287",
+    "https://mmonster.co/wow-forever/guides/dungeons/city-of-dalaran"
+   ]
+  },
+  "92819": {
+   "name": "Destruction in Deadmines",
+   "faction": "Alliance",
+   "lvl": 18,
+   "req": 9,
+   "start": {
+    "kind": "npc",
+    "name": "Alba Fairmoon",
+    "npcID": 253279,
+    "zone": "Westfall",
+    "x": 38.7,
+    "y": 83.7
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Alba Fairmoon",
+    "npcID": 253279,
+    "zone": "Westfall",
+    "x": 38.7,
+    "y": 83.7
+   },
+   "pre": [
+    92753
+   ],
+   "next": [],
+   "sources": [
+    "https://bindonforever.com/quest/92819"
+   ]
+  },
+  "98815": {
+   "dungeon": 2998,
+   "name": "Highland Hides",
+   "faction": "Alliance",
+   "lvl": 28,
+   "req": 24,
+   "start": {
+    "kind": "npc",
+    "name": "James Halloran",
+    "npcID": 2094,
+    "zone": "Wetlands",
+    "x": 8.6,
+    "y": 55.8
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "James Halloran",
+    "npcID": 2094,
+    "zone": "Wetlands",
+    "x": 8.5,
+    "y": 55.7
+   },
+   "pre": [],
+   "next": [
+    484
+   ],
+   "sources": [
+    "https://www.wowhead.com/forever/quest=98815",
+    "https://www.wowhead.com/forever/quest=469",
+    "https://www.wowhead.com/forever/quest=484",
+    "https://foreverdb.net/quest/98815",
+    "https://warcraftmaps.com/quest/98815",
+    "https://mmonster.co/wow-forever/guides/dungeons/excavation-site"
+   ]
+  },
+  "95697": {
+   "dungeon": 2998,
+   "name": "Changing Tastes",
+   "faction": "Horde",
+   "lvl": 31,
+   "req": 24,
+   "start": {
+    "kind": "npc",
+    "name": "Borstan",
+    "npcID": 3368,
+    "zone": "Orgrimmar",
+    "x": 57.3,
+    "y": 53.5
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Borstan",
+    "npcID": 3368,
+    "zone": "Orgrimmar",
+    "x": 57.3,
+    "y": 53.5
+   },
+   "pre": [],
+   "next": [],
+   "sources": [
+    "https://foreverdb.net/quest/95697",
+    "https://mmonster.co/wow-forever/guides/dungeons/excavation-site",
+    "https://www.warcrafttavern.com/forever/guides/excavation-site-wetlands/"
+   ]
+  },
+  "95663": {
+   "dungeon": 2998,
+   "name": "Dragonmaw Rumors",
+   "faction": "Horde",
+   "lvl": 31,
+   "req": 24,
+   "start": {
+    "kind": "npc",
+    "name": "Zaruk",
+    "npcID": 2787,
+    "zone": "Arathi Highlands",
+    "x": 74.5,
+    "y": 35.6
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Deathstalker Agent",
+    "npcID": 13155,
+    "zone": "Wetlands",
+    "x": 51.5,
+    "y": 59.4
+   },
+   "pre": [],
+   "next": [
+    95682
+   ],
+   "sources": [
+    "https://foreverdb.net/quest/95663",
+    "https://mmonster.co/wow-forever/guides/dungeons/excavation-site"
+   ]
+  },
+  "95682": {
+   "dungeon": 2998,
+   "name": "Open the Maw",
+   "faction": "Horde",
+   "lvl": 31,
+   "req": 24,
+   "start": {
+    "kind": "npc",
+    "name": "Deathstalker Agent",
+    "npcID": 13155,
+    "zone": "Wetlands",
+    "x": 51.5,
+    "y": 59.4
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Deathstalker Agent",
+    "npcID": 13155,
+    "zone": "Wetlands",
+    "x": 51.5,
+    "y": 59.2
+   },
+   "pre": [
+    95663
+   ],
+   "next": [],
+   "sources": [
+    "https://foreverdb.net/quest/95682",
+    "https://www.warcrafttavern.com/forever/guides/excavation-site-wetlands/",
+    "https://mmonster.co/wow-forever/guides/dungeons/excavation-site"
+   ]
+  },
+  "95664": {
+   "dungeon": 2998,
+   "name": "Elder Knowledge",
+   "faction": "Horde",
+   "lvl": 31,
+   "req": 24,
+   "start": {
+    "kind": "item",
+    "name": "Titan Relic",
+    "itemID": 270866,
+    "zone": "inside",
+    "dropBy": "Relic Guardian"
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Bashana Runetotem",
+    "npcID": 9087,
+    "zone": "Thunder Bluff",
+    "x": 71.0,
+    "y": 34.1
+   },
+   "pre": [],
+   "next": [
+    98823
+   ],
+   "sources": [
+    "https://foreverdb.net/quest/95664",
+    "https://mmonster.co/wow-forever/guides/dungeons/excavation-site",
+    "https://www.warcrafttavern.com/forever/guides/excavation-site-wetlands/"
+   ]
+  },
+  "98823": {
+   "dungeon": 2998,
+   "name": "Earthen Echo",
+   "faction": "Horde",
+   "lvl": 31,
+   "req": 24,
+   "start": {
+    "kind": "npc",
+    "name": "Bashana Runetotem",
+    "npcID": 9087,
+    "zone": "Thunder Bluff",
+    "x": 71.0,
+    "y": 34.0
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Muln Earthfury",
+    "npcID": 259118,
+    "zone": "Mulgore",
+    "x": 33.4,
+    "y": 22.5
+   },
+   "pre": [
+    95664
+   ],
+   "next": [],
+   "sources": [
+    "https://foreverdb.net/quest/98823",
+    "https://mmonster.co/wow-forever/guides/dungeons/excavation-site"
+   ]
+  },
+  "95810": {
+   "dungeon": 2998,
+   "name": "Lost Relic Carry",
+   "faction": "Alliance",
+   "lvl": 31,
+   "req": 24,
+   "start": {
+    "kind": "item",
+    "name": "Titan Relic",
+    "itemID": 270865,
+    "zone": "inside",
+    "dropBy": "Relic Guardian"
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Prospector Whelgar",
+    "npcID": 1077,
+    "zone": "Wetlands",
+    "x": 38.8,
+    "y": 52.3
+   },
+   "pre": [],
+   "next": [
+    98824
+   ],
+   "sources": [
+    "https://foreverdb.net/quest/95810",
+    "https://mmonster.co/wow-forever/guides/dungeons/excavation-site"
+   ]
+  },
+  "98824": {
+   "dungeon": 2998,
+   "name": "Prehistoric Prism",
+   "faction": "Alliance",
+   "lvl": 31,
+   "req": 24,
+   "start": {
+    "kind": "npc",
+    "name": "Prospector Whelgar",
+    "npcID": 1077,
+    "zone": "Wetlands",
+    "x": 38.8,
+    "y": 52.3
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "High Explorer Magellas",
+    "npcID": 5387,
+    "zone": "Ironforge",
+    "x": 69.8,
+    "y": 18.6
+   },
+   "pre": [
+    95810
+   ],
+   "next": [],
+   "sources": [
+    "https://foreverdb.net/quest/98824",
+    "https://mmonster.co/wow-forever/guides/dungeons/excavation-site"
+   ]
+  },
+  "95646": {
+   "dungeon": 2998,
+   "name": "Horrors in the Highland",
+   "faction": "Alliance",
+   "lvl": 31,
+   "req": 24,
+   "start": {
+    "kind": "npc",
+    "name": "Rethiel the Greenwarden",
+    "npcID": 1244,
+    "zone": "Wetlands",
+    "x": 56.3,
+    "y": 40.4
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Rethiel the Greenwarden",
+    "npcID": 1244,
+    "zone": "Wetlands",
+    "x": 56.2,
+    "y": 40.5
+   },
+   "pre": [
+    463,
+    276,
+    277,
+    275
+   ],
+   "next": [],
+   "sources": [
+    "https://www.wowhead.com/forever/quest=95646",
+    "https://foreverdb.net/quest/95646",
+    "https://warcraftmaps.com/quest/95646",
+    "https://www.warcrafttavern.com/forever/guides/excavation-site-wetlands/",
+    "https://www.zockify.com/forever/dungeons/excavation-site-wetlands/"
+   ]
+  },
+  "95737": {
+   "dungeon": 2998,
+   "name": "Seeking Caitlin",
+   "faction": "Alliance",
+   "lvl": 31,
+   "req": 24,
+   "start": {
+    "kind": "npc",
+    "name": "Llana",
+    "npcID": 3970,
+    "zone": "Ashenvale",
+    "x": 35.0,
+    "y": 48.5
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Caitlin Grassman",
+    "npcID": 1480,
+    "zone": "Wetlands",
+    "x": 11.9,
+    "y": 58.8
+   },
+   "pre": [],
+   "next": [
+    95647
+   ],
+   "sources": [
+    "https://foreverdb.net/quest/95737",
+    "https://mmonster.co/wow-forever/guides/dungeons/excavation-site"
+   ]
+  },
+  "95647": {
+   "dungeon": 2998,
+   "name": "Lost in the Thicket Things",
+   "faction": "Alliance",
+   "lvl": 31,
+   "req": 24,
+   "start": {
+    "kind": "npc",
+    "name": "Caitlin Grassman",
+    "npcID": 1480,
+    "zone": "Wetlands",
+    "x": 11.9,
+    "y": 58.8
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Ardin Grassman",
+    "npcID": 262681,
+    "zone": "inside"
+   },
+   "pre": [],
+   "next": [
+    95809
+   ],
+   "sources": [
+    "https://www.wowhead.com/forever/quest=95647",
+    "https://foreverdb.net/quest/95647",
+    "https://mmonster.co/wow-forever/guides/dungeons/excavation-site",
+    "https://www.zockify.com/forever/dungeons/excavation-site-wetlands/"
+   ]
+  },
+  "95809": {
+   "dungeon": 2998,
+   "name": "Heartwoven",
+   "faction": "Alliance",
+   "lvl": 31,
+   "req": 24,
+   "start": {
+    "kind": "npc",
+    "name": "Ardin Grassman",
+    "npcID": 262681,
+    "zone": "inside"
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Caitlin Grassman",
+    "npcID": 1480,
+    "zone": "Wetlands",
+    "x": 11.9,
+    "y": 58.8
+   },
+   "pre": [
+    95647
+   ],
+   "next": [],
+   "sources": [
+    "https://www.wowhead.com/forever/quest=95647",
+    "https://foreverdb.net/quest/95809",
+    "https://mmonster.co/wow-forever/guides/dungeons/excavation-site"
+   ]
+  },
+  "95772": {
+   "dungeon": 2998,
+   "name": "Songblade Search",
+   "faction": "Alliance",
+   "lvl": 31,
+   "req": 24,
+   "start": {
+    "kind": "npc",
+    "name": "Dorin Songblade",
+    "npcID": 956,
+    "zone": "Redridge Mountains",
+    "x": 25.7,
+    "y": 46.6
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Daewyn Songblade",
+    "npcID": 262465,
+    "zone": "inside",
+    "near": "entrance"
+   },
+   "pre": [],
+   "next": [
+    95795
+   ],
+   "sources": [
+    "https://foreverdb.net/quest/95772",
+    "https://www.warcrafttavern.com/forever/guides/excavation-site-wetlands/",
+    "https://bytetavern.com/wow-forever-excavation-site-wetlands-guide/"
+   ]
+  },
+  "95795": {
+   "dungeon": 2998,
+   "name": "Fallen in the Fen",
+   "faction": "Alliance",
+   "lvl": 31,
+   "req": 24,
+   "start": {
+    "kind": "npc",
+    "name": "Daewyn Songblade",
+    "npcID": 262465,
+    "zone": "inside",
+    "near": "entrance"
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Dorin Songblade",
+    "npcID": 956,
+    "zone": "Redridge Mountains",
+    "x": 25.7,
+    "y": 46.6
+   },
+   "pre": [
+    95772
+   ],
+   "next": [],
+   "sources": [
+    "https://foreverdb.net/quest/95795",
+    "https://mmonster.co/wow-forever/guides/dungeons/excavation-site"
+   ]
+  },
+  "92456": {
+   "dungeon": 2959,
+   "name": "A Green Sample",
+   "faction": "Alliance",
+   "lvl": 33,
+   "req": 24,
+   "start": {
+    "kind": "npc",
+    "name": "Shylamiir",
+    "npcID": 5502,
+    "zone": "Stormwind City",
+    "x": 31.5,
+    "y": 63.0
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Shylamiir",
+    "npcID": 5502,
+    "zone": "Stormwind City",
+    "x": 31.4,
+    "y": 63.0
+   },
+   "pre": [],
+   "next": [],
+   "sources": [
+    "https://foreverdb.net/quest/92456",
+    "https://warcraftmaps.com/quest/92456",
+    "https://www.warcrafttavern.com/forever/guides/city-of-dalaran-quests/"
+   ]
+  },
+  "92458": {
+   "dungeon": 2959,
+   "name": "Heart of Disruption",
+   "faction": "Alliance",
+   "lvl": 33,
+   "req": 24,
+   "start": {
+    "kind": "npc",
+    "name": "Image of Archmage Modera",
+    "npcID": 269127,
+    "zone": "Silverpine Forest",
+    "x": 68.6,
+    "y": 45.2
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Image of Archmage Modera",
+    "npcID": 269127,
+    "zone": "Silverpine Forest",
+    "x": 68.6,
+    "y": 45.2
+   },
+   "pre": [
+    92432
+   ],
+   "next": [
+    92459
+   ],
+   "sources": [
+    "https://foreverdb.net/quest/92458",
+    "https://warcraftmaps.com/quest/92458",
+    "https://warcraftmaps.com/quest/92432",
+    "https://foreverdb.net/quest/92432",
+    "https://forg.gg/en/forever/quest/92458"
+   ]
+  },
+  "96984": {
+   "dungeon": 2959,
+   "name": "Heart of Disruption",
+   "faction": "Horde",
+   "lvl": 33,
+   "req": 24,
+   "start": {
+    "kind": "npc",
+    "name": "Image of Archmage Modera",
+    "npcID": 269127,
+    "zone": "Silverpine Forest",
+    "x": 68.6,
+    "y": 45.1
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Magus Wordeen Voidglare",
+    "npcID": 2410,
+    "zone": "Hillsbrad Foothills",
+    "x": 61.6,
+    "y": 20.8
+   },
+   "pre": [
+    93680,
+    545,
+    92434
+   ],
+   "next": [
+    97287
+   ],
+   "sources": [
+    "https://foreverdb.net/quest/96984",
+    "https://warcraftmaps.com/quest/96984",
+    "https://foreverdb.net/quest/92434",
+    "https://www.warcrafttavern.com/forever/guides/city-of-dalaran-quests/",
+    "https://mmonster.co/wow-forever/guides/dungeons/city-of-dalaran"
+   ]
+  },
+  "96987": {
+   "dungeon": 2959,
+   "name": "Opportunistic Education",
+   "faction": "Horde",
+   "lvl": 33,
+   "req": 24,
+   "start": {
+    "kind": "npc",
+    "name": "Rexxie Copperclutch",
+    "npcID": 268743,
+    "zone": "inside",
+    "near": "entrance"
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Rexxie Copperclutch",
+    "npcID": 268743,
+    "zone": "inside",
+    "near": "entrance"
+   },
+   "pre": [],
+   "next": [],
+   "sources": [
+    "https://foreverdb.net/quest/96987",
+    "https://warcraftmaps.com/quest/96987",
+    "https://www.warcrafttavern.com/forever/guides/city-of-dalaran-quests/",
+    "https://mmonster.co/wow-forever/guides/dungeons/city-of-dalaran"
+   ]
+  },
+  "92489": {
+   "dungeon": 2959,
+   "name": "Power Overwhelming",
+   "faction": "Alliance",
+   "lvl": 33,
+   "req": 24,
+   "start": {
+    "kind": "npc",
+    "name": "High Sorcerer Andromath",
+    "npcID": 5694,
+    "zone": "Stormwind City",
+    "x": 48.8,
+    "y": 87.8
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "High Sorcerer Andromath",
+    "npcID": 5694,
+    "zone": "Stormwind City",
+    "x": 48.9,
+    "y": 87.7
+   },
+   "pre": [],
+   "next": [],
+   "sources": [
+    "https://foreverdb.net/quest/92489",
+    "https://warcraftmaps.com/quest/92489",
+    "https://www.warcrafttavern.com/forever/guides/city-of-dalaran-quests/"
+   ]
+  },
+  "96988": {
+   "dungeon": 2959,
+   "name": "Source of Power",
+   "faction": "Horde",
+   "lvl": 33,
+   "req": 24,
+   "start": {
+    "kind": "npc",
+    "name": "Doctor Martin Felben",
+    "npcID": 11044,
+    "zone": "Undercity",
+    "x": 46.6,
+    "y": 74.3
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Doctor Martin Felben",
+    "npcID": 11044,
+    "zone": "Undercity",
+    "x": 46.4,
+    "y": 74.1
+   },
+   "pre": [],
+   "next": [],
+   "sources": [
+    "https://foreverdb.net/quest/96988",
+    "https://warcraftmaps.com/quest/96988",
+    "https://www.warcrafttavern.com/forever/guides/city-of-dalaran-quests/"
+   ]
+  },
+  "92457": {
+   "dungeon": 2959,
+   "name": "Starving Arcane",
+   "faction": "Alliance",
+   "lvl": 33,
+   "req": 24,
+   "start": {
+    "kind": "npc",
+    "name": "Image of Archmage Modera",
+    "npcID": 269127,
+    "zone": "Silverpine Forest",
+    "x": 68.6,
+    "y": 45.2
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Image of Archmage Modera",
+    "npcID": 269127,
+    "zone": "Silverpine Forest",
+    "x": 68.6,
+    "y": 45.2
+   },
+   "pre": [
+    92432
+   ],
+   "next": [],
+   "sources": [
+    "https://foreverdb.net/quest/92457",
+    "https://warcraftmaps.com/quest/92457",
+    "https://www.warcrafttavern.com/forever/guides/city-of-dalaran-quests/"
+   ]
+  },
+  "96986": {
+   "dungeon": 2959,
+   "name": "The Grave Knight",
+   "faction": "Horde",
+   "lvl": 33,
+   "req": 24,
+   "start": {
+    "kind": "npc",
+    "name": "Melisara",
+    "npcID": 2278,
+    "zone": "Hillsbrad Foothills",
+    "x": 62.6,
+    "y": 20.6
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Melisara",
+    "npcID": 2278,
+    "zone": "Hillsbrad Foothills",
+    "x": 62.6,
+    "y": 20.6
+   },
+   "pre": [],
+   "next": [],
+   "sources": [
+    "https://foreverdb.net/quest/96986",
+    "https://warcraftmaps.com/quest/96986"
+   ]
+  },
+  "92753": {
+   "dungeon": 36,
+   "name": "Destruction in Deadmines",
+   "faction": "Alliance",
+   "lvl": 18,
+   "req": 9,
+   "start": {
+    "kind": "npc",
+    "name": "Alba Fairmoon",
+    "npcID": 253279,
+    "zone": "Westfall",
+    "x": 52.5,
+    "y": 53.1
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Alba Fairmoon",
+    "npcID": 253279,
+    "zone": "Westfall",
+    "x": 38.7,
+    "y": 83.8
+   },
+   "pre": [
+    92742,
+    92744,
+    92745,
+    92747,
+    92748,
+    92749,
+    92750,
+    92751,
+    92752
+   ],
+   "next": [
+    92819
+   ],
+   "sources": [
+    "https://foreverdb.net/quest/92753",
+    "https://warcraftmaps.com/quest/92753",
+    "https://foreverchanges.pro/quest/92753/destruction-in-deadmines",
+    "https://bindonforever.com/quest/92819"
+   ]
+  },
+  "96800": {
+   "dungeon": 189,
+   "name": "Past Due",
+   "faction": "Alliance",
+   "lvl": 38,
+   "req": 30,
+   "start": {
+    "kind": "npc",
+    "name": "Magus Olvek",
+    "zone": "Alterac Mountains",
+    "x": 9.5,
+    "y": 62.5
+   },
+   "finish": {
+    "kind": "npc",
+    "name": "Magus Olvek",
+    "zone": "Alterac Mountains",
+    "x": 9.5,
+    "y": 62.5
+   },
+   "pre": [],
+   "next": [],
+   "sources": [
+    "https://foreverdb.net/quest/96800",
+    "https://warcraftmaps.com/quest/96800",
+    "https://wowseer.gg/quest/96800",
+    "https://www.warcrafttavern.com/forever/guides/scarlet-monastery-quests/"
+   ]
+  }
+ },
+ "names": {
+  "275": "Blisters on the Land",
+  "276": "Tramping Paws",
+  "277": "Fire Taboo",
+  "356": "Rear Guard Patrol",
+  "447": "A Recipe For Death",
+  "450": "A Recipe For Death",
+  "451": "A Recipe For Death",
+  "463": "The Greenwarden",
+  "484": "Young Crocolisk Skins",
+  "545": "Dalaran Patrols",
+  "92742": "Testing the Wells",
+  "92744": "Murloc Gills",
+  "92745": "The State of the Mines",
+  "92747": "Moonbrook Espionage",
+  "92748": "Explosive Consultation",
+  "92749": "A Dynamite Plan",
+  "92750": "Detonation at a Distance",
+  "92751": "Detonation at a Distance",
+  "92752": "Explosive Consultation"
+ }
+}
