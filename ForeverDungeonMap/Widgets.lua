@@ -276,35 +276,73 @@ function W.Window(name, width, height, title)
     return window
 end
 
--- copyable text window: inset of the text, its top under the title ribbon, room for the scroll bar
-local TEXT_WINDOW_INSET, TEXT_WINDOW_TOP, TEXT_WINDOW_SCROLL_BAR = 20, -44, 16
+-- text boxes: padding inside the frame, room for the scroll bar
+local TEXT_BOX_PADDING, TEXT_BOX_SCROLL_BAR = 8, 22
+-- copyable text window: inset of the box, its top under the title ribbon
+local TEXT_WINDOW_INSET, TEXT_WINDOW_TOP = 18, -44
 
--- Window with one scrolling multi-line edit box (window.EditBox); Escape closes it.
-function W.TextWindow(name, width, height, title)
-    local window = W.Window(name, width, height, title)
-    window:SetPoint("CENTER")
-    window:SetFrameStrata("DIALOG")
-    local scroll = CreateFrame("ScrollFrame", nil, window, "UIPanelScrollFrameTemplate")
-    scroll:SetPoint("TOPLEFT", TEXT_WINDOW_INSET, TEXT_WINDOW_TOP)
-    scroll:SetPoint("BOTTOMRIGHT", -TEXT_WINDOW_INSET - TEXT_WINDOW_SCROLL_BAR, TEXT_WINDOW_INSET)
+-- Framed, scrolling multi-line text box (box.EditBox). options = { readOnly, placeholder }:
+-- a read-only box can be selected and copied but keeps its text; a click anywhere in the frame
+-- puts the cursor in it; the placeholder shows while the box is empty.
+function W.TextBox(parent, options)
+    options = options or {}
+    local box = W.Panel(parent, options.readOnly and C.INK or C.TOOLTIP_BG, options.readOnly and C.EDGE or C.EDGE_PANEL)
+    local scroll = CreateFrame("ScrollFrame", nil, box, "UIPanelScrollFrameTemplate")
+    scroll:SetPoint("TOPLEFT", TEXT_BOX_PADDING, -TEXT_BOX_PADDING)
+    scroll:SetPoint("BOTTOMRIGHT", -TEXT_BOX_SCROLL_BAR, TEXT_BOX_PADDING)
     local editBox = CreateFrame("EditBox", nil, scroll)
     editBox:SetMultiLine(true)
     editBox:SetAutoFocus(false)
     editBox:SetFontObject(ns.Font("GameFontHighlightSmall"))
-    editBox:SetWidth(width - 2 * TEXT_WINDOW_INSET - TEXT_WINDOW_SCROLL_BAR)
-    editBox:SetScript("OnEscapePressed", function() window:Hide() end)
+    local color = options.readOnly and C.MUTED or C.TEXT
+    editBox:SetTextColor(color[1], color[2], color[3])
+    editBox:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
     scroll:SetScrollChild(editBox)
-    window.EditBox = editBox
+    box:SetScript("OnSizeChanged", function(_, width) editBox:SetWidth(width - TEXT_BOX_PADDING - TEXT_BOX_SCROLL_BAR) end)
+    box:EnableMouse(true)
+    box:SetScript("OnMouseDown", function() editBox:SetFocus() end)
+    box.EditBox = editBox
+    if options.placeholder then
+        box.Placeholder = box:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+        box.Placeholder:SetPoint("TOPLEFT", TEXT_BOX_PADDING + 2, -TEXT_BOX_PADDING - 1)
+        box.Placeholder:SetText(options.placeholder)
+    end
+    editBox:SetScript("OnTextChanged", function(self, userInput)
+        if options.readOnly and userInput then self:SetText(box.fixedText or "") end
+        if box.Placeholder then box.Placeholder:SetShown(self:GetText() == "") end
+    end)
+    return box
+end
+
+-- Text of a W.TextBox (a read-only one keeps exactly this).
+function W.SetBoxText(box, text)
+    box.fixedText = text
+    box.EditBox:SetText(text)
+end
+
+-- Window with one read-only text box (window.Box, window.EditBox); Escape closes it.
+function W.TextWindow(name, width, height, title)
+    local window = W.Window(name, width, height, title)
+    window:SetPoint("CENTER")
+    -- one layer above the journal (DIALOG, raised on every click), or it opens hidden behind it
+    window:SetFrameStrata("FULLSCREEN_DIALOG")
+    window:SetToplevel(true)
+    window.Box = W.TextBox(window, { readOnly = true })
+    window.Box:SetPoint("TOPLEFT", TEXT_WINDOW_INSET, TEXT_WINDOW_TOP)
+    window.Box:SetPoint("BOTTOMRIGHT", -TEXT_WINDOW_INSET, TEXT_WINDOW_INSET)
+    window.EditBox = window.Box.EditBox
+    window.EditBox:SetScript("OnEscapePressed", function() window:Hide() end)
     tinsert(UISpecialFrames, name)
     return window
 end
 
--- Fill a W.TextWindow and show it: all text selected for Ctrl+C, or the cursor at the top to type.
-function W.ShowText(window, text, cursorAtStart)
-    window.EditBox:SetText(text)
+-- Fill a W.TextWindow and show it with all text selected for Ctrl+C.
+function W.ShowText(window, text)
+    W.SetBoxText(window.Box, text)
     window:Show()
+    window:Raise()
     window.EditBox:SetFocus()
-    if cursorAtStart then window.EditBox:SetCursorPosition(0) else window.EditBox:HighlightText() end
+    window.EditBox:HighlightText()
 end
 
 -- Inset panel (ink fill, bronze edge).

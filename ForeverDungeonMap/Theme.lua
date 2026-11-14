@@ -145,7 +145,9 @@ ns.TEX = {
     DROPDOWN_ARROW = "Interface\\ChatFrame\\ChatFrameExpandArrow",
     TRACK = "Interface\\Icons\\INV_Misc_Spyglass_03",
     SHARE = "Interface\\Icons\\INV_Letter_15",
-    BUG_REPORT = "Interface\\Icons\\INV_Misc_Note_01",
+    -- the game's own blue "report a bug" beetle; the note icon if this client lacks it
+    BUG_REPORT = "Interface\\HelpFrame\\HelpIcon-Bug",
+    BUG_REPORT_FALLBACK = "Interface\\Icons\\INV_Misc_Note_01",
     MINUS = "Interface\\Buttons\\UI-MinusButton-Up",
     PLUS = "Interface\\Buttons\\UI-PlusButton-Up",
     -- Interface\Buttons\UI-DialogBox-Button-Gold-Up / -Down / UI-DialogBox-Button-Disabled

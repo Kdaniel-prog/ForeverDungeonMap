@@ -13,7 +13,9 @@ local Canvas = ns.Canvas
 local Journal = {}
 ns.Journal = Journal
 
-local WINDOW_WIDTH, WINDOW_HEIGHT = 860, 600
+-- the footer strip under the panels holds the bug report button
+local FOOTER_HEIGHT = 32
+local WINDOW_WIDTH, WINDOW_HEIGHT = 860, 600 + FOOTER_HEIGHT
 local SIDE_MARGIN, BODY_TOP, HEADER_TOP, HEADER_HEIGHT = 16, 156, 84, 64
 local LIST_WIDTH, PANEL_GAP = 344, 10
 local LIST_CONTENT_WIDTH = LIST_WIDTH - 8 - 28
@@ -24,7 +26,7 @@ local QUEST_HEADER_HEIGHT = 64
 -- faction crests: the list's filter toggles (they fill the 34 px title strip) and the quest header
 local FACTION_TOGGLE_WIDTH, FACTION_TOGGLE_HEIGHT, FACTION_TOGGLE_ICON = 40, 30, 28
 local QUEST_HEADER_CREST = 26
-local BUG_BUTTON_SIZE = 22
+local BUG_BUTTON_WIDTH, BUG_BUTTON_HEIGHT, BUG_ICON_SIZE = 140, 28, 24
 local CARD_WIDTH, CARD_HEIGHT, CARD_GAP_X, CARD_GAP_Y, CARD_COLUMNS = 388, 120, 12, 10, 2
 local REFRESH_DELAY = 0.25
 local MAP_TOP_STRIP = 30
@@ -795,7 +797,7 @@ local function CreatePage()
     CreateHeaderBand()
     local body = CreateFrame("Frame", nil, page)
     body:SetPoint("TOPLEFT", SIDE_MARGIN, -BODY_TOP)
-    body:SetPoint("BOTTOMRIGHT", -SIDE_MARGIN, SIDE_MARGIN)
+    body:SetPoint("BOTTOMRIGHT", -SIDE_MARGIN, SIDE_MARGIN + FOOTER_HEIGHT)
     local handlers = CreateHandlers()
     CreateListPanel(body, handlers)
     CreateDetailPanel(body, handlers)
@@ -963,7 +965,7 @@ local function CreateHome()
     levelTag:SetPoint("TOPRIGHT", -24, -54)
     local gridScroll = CreateFrame("ScrollFrame", "ForeverDungeonMapJournalGrid", home, "UIPanelScrollFrameTemplate")
     gridScroll:SetPoint("TOPLEFT", SIDE_MARGIN, -HEADER_TOP)
-    gridScroll:SetPoint("BOTTOMRIGHT", -32, SIDE_MARGIN)
+    gridScroll:SetPoint("BOTTOMRIGHT", -32, SIDE_MARGIN + FOOTER_HEIGHT)
     grid = CreateFrame("Frame", nil, gridScroll)
     grid:SetSize(CARD_COLUMNS * CARD_WIDTH + CARD_GAP_X, 10)
     gridScroll:SetScrollChild(grid)
@@ -1111,10 +1113,13 @@ local function CreateEvents()
     end)
 end
 
--- Note icon left of the close button: opens the bug report.
+-- "Report a bug" with the blue beetle, bottom right in the footer strip: opens the bug report.
 local function CreateBugButton()
-    ui.bugButton = W.IconButton(frame, BUG_BUTTON_SIZE, TEX.BUG_REPORT)
-    ui.bugButton:SetPoint("RIGHT", frame.CloseButton, "LEFT", -4, 0)
+    ui.bugButton = W.Tab(frame, L["Report a bug"], TEX.BUG_REPORT, BUG_BUTTON_WIDTH, BUG_BUTTON_HEIGHT)
+    ui.bugButton:SetPoint("BOTTOMRIGHT", -SIDE_MARGIN, SIDE_MARGIN - 4)
+    ui.bugButton.Icon:SetSize(BUG_ICON_SIZE, BUG_ICON_SIZE)
+    -- SetTexture is false when the client has no such file
+    if not ui.bugButton.Icon:SetTexture(TEX.BUG_REPORT) then ui.bugButton.Icon:SetTexture(TEX.BUG_REPORT_FALLBACK) end
     ui.bugButton:SetScript("OnClick", function() ns.BugReport.Open() end)
     W.Tooltip(ui.bugButton, L["Report a bug"], L["Copy the details of a problem to send them in."])
 end

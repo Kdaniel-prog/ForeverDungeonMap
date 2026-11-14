@@ -78,7 +78,7 @@ end
 ---------------------------------------------------------------------------
 Step("Journal:ShowHome", function() ns.Journal:ShowHome() end)
 local journal = _G.ForeverDungeonMapJournal
-Check("journal frame shown, 860x600", journal and journal:IsVisible() and journal:GetWidth() == 860 and journal:GetHeight() == 600)
+Check("journal frame shown, 860x632 (600 + bug report footer)", journal and journal:IsVisible() and journal:GetWidth() == 860 and journal:GetHeight() == 632)
 local grid = _G.ForeverDungeonMapJournalGrid and _G.ForeverDungeonMapJournalGrid:GetScrollChild()
 if grid then
     local cardsShown = M.Shown(grid._children or {})
@@ -416,11 +416,32 @@ end)
 Check("journal has a bug report button", bugButton ~= nil and bugButton:IsShown())
 Step("/fdmap bug", function() SlashCmdList.FOREVERDUNGEONMAP("bug") end)
 local bugWindow = _G.ForeverDungeonMapBugReport
-local bugText = bugWindow and bugWindow.EditBox:GetText() or ""
+local details = bugWindow and bugWindow.Details.EditBox
+local bugText = details and details:GetText() or ""
 Check("bug report window shows the details", bugWindow and bugWindow:IsShown()
     and bugText:find("---- ForeverDungeonMap bug report ----", 1, true) ~= nil and bugText:find("Journal: ", 1, true) ~= nil,
     bugText:sub(1, 200))
+Check("empty description box shows its placeholder", bugWindow.Description.Placeholder:IsShown())
+Step("player tries to type into the details", function()
+    details:SetText("changed")
+    M.FireScript(details, "OnTextChanged", true)
+end)
+Check("details are read-only", details:GetText() == bugText)
+Step("player writes a description", function()
+    bugWindow.Description.EditBox:SetText("The map is empty")
+    M.FireScript(bugWindow.Description.EditBox, "OnTextChanged", true)
+end)
+Check("placeholder hides once there is text", not bugWindow.Description.Placeholder:IsShown())
+Step("click Copy everything", function() M.Click(bugWindow.CopyButton) end)
+Check("copy puts description + details together", details:GetText():find("^The map is empty\n\n%-%-%-%- ForeverDungeonMap") ~= nil,
+    details:GetText():sub(1, 80))
 Step("close bug report", function() bugWindow:Hide() end)
+-- reported: the button did nothing - the window opened hidden behind the journal (same strata)
+Step("click Report a bug", function() M.Click(bugButton) end)
+Check("Report a bug button opens the window above the journal", bugWindow:IsShown()
+    and bugWindow:GetFrameStrata() == "FULLSCREEN_DIALOG" and journal:GetFrameStrata() == "DIALOG",
+    tostring(bugWindow:GetFrameStrata()) .. " over " .. tostring(journal:GetFrameStrata()))
+Step("close bug report again", function() bugWindow:Hide() end)
 
 -- "In Dungeon" marker
 local insideDungeon, insideQuest

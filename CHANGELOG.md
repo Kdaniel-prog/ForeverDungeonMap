@@ -3,7 +3,7 @@
 All notable changes to ForeverDungeonMap. Versions follow the `## Version` of the .toc;
 releases are tagged `vX.Y.Z`.
 
-## 0.7.1 (unreleased)
+## 0.7.1 (2026-11-14)
 
 ### Changed
 - The journal's quest list starts with only your faction's quests; the crest toggles above the
@@ -14,8 +14,10 @@ releases are tagged `vX.Y.Z`.
 - Quest experience comes from the game (WoW Forever's values): the addon asks the game to load a
   quest's data when it is not cached yet. Reward items the game shows on the quest frame are
   remembered and shown instead of the shipped list.
-- "Report a bug" (note icon next to the journal's close button, or `/fdmap bug`): a window with
-  room for your words and the details a fix needs, ready to copy and send.
+- "Report a bug" (blue bug button at the journal's bottom right, or `/fdmap bug`): write what went
+  wrong, the addon adds the details a fix needs (read-only), "Copy everything" selects both for
+  Ctrl+C, and the GitHub issues link is right there to paste it.
+- Releases are automatic: GitHub tags the version from this changelog and uploads it to CurseForge.
 - A quest chain is one row in the journal's quest list: its first step in that dungeon, with the
   chain icon; the other steps (also the ones after the dungeon quest) open under it. The row shows
   the most urgent state of its steps. The quest page lists the whole chain ("Quest chain").
@@ -76,7 +78,7 @@ releases are tagged `vX.Y.Z`.
   corpse as target, or its loot.
 - The parchment of the quest page now fills the whole page.
 
-## 0.6.0 (unreleased)
+## 0.6.0 (2026-11-13)
 
 ### New
 - "Gilded Codex" look for the Dungeon Journal and the dungeon map: one palette, gold borders on
