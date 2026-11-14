@@ -87,6 +87,17 @@ jobs:
             commit -q -m "$GITHUB_REF_NAME"
           git tag "$GITHUB_REF_NAME"
 
+      # The packager only says "Error fetching game version info" when CurseForge refuses the token.
+      - name: Check the CurseForge token
+        if: steps.version.outputs.release == 'true' && env.CF_API_KEY != ''
+        run: |
+          status=$(curl -s -o /dev/null -w '%{http_code}' -H "X-Api-Token: $CF_API_KEY" https://wow.curseforge.com/api/game/versions)
+          echo "CurseForge API answered HTTP $status"
+          if [ "$status" != "200" ]; then
+            echo "::error::CurseForge does not accept the CF_API_KEY secret (HTTP $status). Make a new token at https://authors.curseforge.com/account/api-tokens and set it again."
+            exit 1
+          fi
+
       - name: Package and upload
         if: steps.version.outputs.release == 'true'
         uses: BigWigsMods/packager@v2
