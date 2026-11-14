@@ -71,15 +71,27 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # The packager reads .pkgmeta and the changelog from its top directory (the addon folder).
-      - name: Put the packager files next to the addon
+      # The packager wants the addon (its .toc) at the top of a git checkout, but here it is in a
+      # subfolder: the addon, .pkgmeta and the changelog get a checkout of their own with the tag.
+      - name: Put the addon at the top of its own checkout
         if: steps.version.outputs.release == 'true'
-        run: cp .pkgmeta CHANGELOG.md ForeverDungeonMap/
+        run: |
+          addon="$RUNNER_TEMP/ForeverDungeonMap"
+          mkdir -p "$addon"
+          cp -r ForeverDungeonMap/. .pkgmeta CHANGELOG.md "$addon/"
+          cd "$addon"
+          git init -q
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git add -A
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -q -m "$GITHUB_REF_NAME"
+          git tag "$GITHUB_REF_NAME"
 
       - name: Package and upload
         if: steps.version.outputs.release == 'true'
         uses: BigWigsMods/packager@v2
         with:
           args: >-
-            -t ForeverDungeonMap
+            -t ${{ runner.temp }}/ForeverDungeonMap
             ${{ vars.CURSEFORGE_PROJECT_ID && format('-p {0}', vars.CURSEFORGE_PROJECT_ID) || '' }}
             ${{ vars.CURSEFORGE_GAME_VERSION && format('-g {0}', vars.CURSEFORGE_GAME_VERSION) || '' }}
