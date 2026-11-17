@@ -3,7 +3,7 @@
 All notable changes to ForeverDungeonMap. Versions follow the `## Version` of the .toc;
 releases are tagged `vX.Y.Z`.
 
-## 0.7.2 (unreleased)
+## 0.7.2 (2026-11-17)
 
 ### Changed
 - The live view opens with the world map (M) everywhere, not only inside dungeons. The new option
