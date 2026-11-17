@@ -54,19 +54,21 @@ Step("PLAYER_LOGIN", function() M.FireEvent("PLAYER_LOGIN") end)
 Step("PLAYER_ENTERING_WORLD", function() M.FireEvent("PLAYER_ENTERING_WORLD", true, false) end)
 M.Advance(6)
 
-local KEYS = { "questPins", "liveView", "autoDungeonMap", "bossIconScale" }
+local KEYS = { "questPins", "liveView", "liveViewOnlyInDungeons", "autoDungeonMap", "recapPopup", "bossIconScale" }
 Check("category registered as ForeverDungeonMap", registered and registered.name == "ForeverDungeonMap")
-Check("four controls in order", registered and #registered.controls == 4 and (function()
+Check("every setting has a control, in order", registered and #registered.controls == #KEYS and (function()
     for i, key in ipairs(KEYS) do
         if registered.controls[i].setting.key ~= key then return false end
     end
     return true
 end)())
-Check("boss icon size is a 60-160 % slider", registered and registered.controls[4].kind == "slider"
-    and registered.controls[4].sliderOptions.minimum == 0.6 and registered.controls[4].sliderOptions.maximum == 1.6
-    and registered.controls[4].sliderOptions.formatter(1) == "100%")
+local sliderControl = registered and registered.controls[#KEYS]
+Check("boss icon size is a 60-160 % slider", sliderControl and sliderControl.kind == "slider"
+    and sliderControl.sliderOptions.minimum == 0.6 and sliderControl.sliderOptions.maximum == 1.6
+    and sliderControl.sliderOptions.formatter(1) == "100%")
 Check("saved value kept, not overwritten by the default", ForeverDungeonMapDB.questPins == false and ns.Settings.Get("questPins") == false)
 Check("defaults written when missing", ForeverDungeonMapDB.liveView == true and ForeverDungeonMapDB.autoDungeonMap == true)
+Check("the live view opens everywhere unless the player limits it to dungeons", ForeverDungeonMapDB.liveViewOnlyInDungeons == false)
 Check("bossIconScale has a value", type(ns.Settings.Get("bossIconScale")) == "number")
 Check("unknown key -> nil", ns.Settings.Get("noSuchSetting") == nil)
 

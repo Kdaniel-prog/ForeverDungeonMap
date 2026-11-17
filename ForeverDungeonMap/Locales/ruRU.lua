@@ -8,9 +8,17 @@ ns.AddTranslations("ruRU", {
     ["Quest pins on the world map"] = "Метки заданий на карте мира",
     ["Show where dungeon quests start (!) and are turned in (?) on zone and continent maps."] =
         "Показывает на картах зон и континентов, где начинаются (!) и сдаются (?) задания подземелий.",
-    ["Live view in dungeons"] = "Живая карта в подземельях",
-    ["Show the live dungeon map window while you are inside a dungeon."] =
-        "Показывает окно живой карты подземелья, пока вы находитесь в подземелье.",
+    ["Live view next to the map"] = "Живая карта рядом с картой мира",
+    ["Show your minimap enlarged next to the world map while the map is open."] =
+        "Показывает увеличенную миникарту рядом с картой мира, пока карта открыта.",
+    ["Done"] = "Готово",
+    ["Click the dungeons to hide or show them, then press Done."] =
+        "Нажимайте на подземелья, чтобы скрыть или показать их, затем нажмите «Готово».",
+    ["Live view only inside dungeons"] = "Живая карта только в подземельях",
+    ["Open the live view only while you are inside a dungeon or raid."] =
+        "Открывает живую карту, только пока вы находитесь в подземелье или рейде.",
+    ["The minimap cannot move in combat. It appears here when the fight ends."] =
+        "В бою миникарту нельзя перемещать. Она появится здесь, когда бой закончится.",
     ["Dungeon map on M inside dungeons"] = "Карта подземелья по M внутри подземелий",
     ["Opening the world map inside a dungeon also opens the dungeon's own map."] =
         "При открытии карты мира в подземелье также открывается карта самого подземелья.",

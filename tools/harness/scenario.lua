@@ -581,7 +581,8 @@ local view = _G.ForeverDungeonMapView
 Check("dungeon view shown on map open inside WC", view and view:IsVisible())
 Check("map open did not change the world map", WorldMapFrame:GetMapID() == 279)
 if COMBAT then
-    Check("live view waits for the end of combat", not ns.Live:IsShown() and Minimap:GetParent() == minimapParent)
+    Check("in combat the live view opens without the minimap", ns.Live:IsShown() and not ns.Live:IsBorrowing()
+        and Minimap:GetParent() == minimapParent)
 else
     Check("live view shown", ns.Live:IsShown())
     Check("minimap moved into live view", Minimap:GetParent() ~= minimapParent)
@@ -682,8 +683,8 @@ if COMBAT then
     Check("GoUp in combat: world map change waits", WorldMapFrame:GetMapID() == 279 and (M.openWorldMapCalls or 0) == openCalls)
 else
     Check("GoUp: world map on the entrance zone via C_Map.OpenWorldMap", WorldMapFrame:GetMapID() == 1413 and (M.openWorldMapCalls or 0) == openCalls + 1)
-    Check("live view hidden after GoUp", not ns.Live:IsShown())
-    Check("minimap returned to its parent", Minimap:GetParent() == minimapParent and Minimap:GetNumPoints() == minimapPoints)
+    M.Advance(0.1)
+    Check("the live view stays next to the map after GoUp", ns.Live:IsShown() and ns.Live:IsBorrowing())
 end
 
 -- after going out: "Dungeons", the dungeon's map and its quests after the last nav bar crumb
@@ -706,7 +707,7 @@ if not COMBAT then
     Step("Live:Show", function() ns.Live:Show() end)
     Check("Live:Show works", ns.Live:IsShown())
     Step("Live:Hide", function() ns.Live:Hide() end)
-    Check("Live:Hide gives the minimap back", Minimap:GetParent() == minimapParent)
+    Check("Live:Hide gives the minimap back", Minimap:GetParent() == minimapParent and Minimap:GetNumPoints() == minimapPoints)
 end
 
 ---------------------------------------------------------------------------
@@ -791,6 +792,7 @@ if COMBAT then
         Check("after combat: live view shown with the map", ns.Live:IsShown())
     end
     Step("close world map after combat", function() if WorldMapFrame:IsShown() then M.UserToggleWorldMap() end end)
+    M.Advance(0.1)
     Check("after combat: minimap back home", Minimap:GetParent() == minimapParent)
     M.combat = true
 end

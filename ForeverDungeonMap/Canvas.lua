@@ -393,14 +393,18 @@ local function MakeLootRow(parent)
     row.Sub = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     row.Sub:SetPoint("BOTTOMLEFT", row.Icon, "BOTTOMRIGHT", 10, 3)
     row.Sub:SetTextColor(C.MUTED[1], C.MUTED[2], C.MUTED[3])
+    row.Count = row:CreateFontString(nil, "OVERLAY", ns.Font("number"))
+    row.Count:SetPoint("RIGHT", -10, 0)
     return row
 end
 
--- One full-width loot row: icon + quality frame, quality-coloured name, "Slot, Type".
-function Canvas:Item(itemID)
+-- One full-width loot row: icon + quality frame, quality-coloured name, "Slot, Type", and
+-- "x3" on the right when `count` is more than one.
+function Canvas:Item(itemID, count)
     local row = self:Acquire("item", MakeLootRow)
     self:TrackItem(row, itemID)
     Safe(FillItem, row, itemID)
+    row.Count:SetText(count and count > 1 and ("x%d"):format(count) or "")
     W.ApplyVisual(row)
     self:Place(row, SIZE.loot)
     self:Space(SIZE.rowGap)

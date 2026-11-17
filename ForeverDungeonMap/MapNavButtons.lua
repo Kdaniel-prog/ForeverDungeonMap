@@ -10,7 +10,7 @@ local W, TEX, L = ns.W, ns.TEX, ns.L
 local NavButtons = {}
 ns.NavButtons = NavButtons
 
-local GAP, HEIGHT, ICON_ROOM, LEVELS_ABOVE_NAV = 4, 28, 40, 5
+local GAP, HEIGHT, LEVELS_ABOVE_NAV = 4, 28, 5
 
 local dungeonsButton, mapButton, questsButton
 
@@ -34,11 +34,6 @@ end
 
 local function DungeonName(instanceID)
     return ns.GetDungeon(instanceID, instanceID == ns.instanceID and ns.instanceName or nil).name
-end
-
--- A chip as wide as its label (plus room for the icon).
-local function FitWidth(button)
-    button:SetWidth(button.Label:GetStringWidth() + ICON_ROOM)
 end
 
 local function CreateButtons()
@@ -65,8 +60,8 @@ local function FillDungeonButtons(instanceID)
     W.SetDungeonIcon(mapButton, instanceID)
     local questCount = #(ns.QUESTS[instanceID] or {})
     questsButton.Label:SetText(questCount > 0 and L["Quests (%d)"]:format(questCount) or L["Quests"])
-    FitWidth(mapButton)
-    FitWidth(questsButton)
+    W.FitTab(mapButton)
+    W.FitTab(questsButton)
 end
 
 -- In a row right after the last crumb (Blizzard rebuilds the crumbs on every map change).
@@ -99,7 +94,7 @@ function NavButtons.Update()
         return
     end
     if not dungeonsButton then CreateButtons() end
-    FitWidth(dungeonsButton)
+    W.FitTab(dungeonsButton)
     dungeonsButton:Show()
     FillDungeonButtons(NavButtons.Target())
     PlaceButtons(navBar)

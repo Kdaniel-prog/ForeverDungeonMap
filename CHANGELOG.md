@@ -3,6 +3,45 @@
 All notable changes to ForeverDungeonMap. Versions follow the `## Version` of the .toc;
 releases are tagged `vX.Y.Z`.
 
+## 0.7.2 (unreleased)
+
+### Changed
+- The live view opens with the world map (M) everywhere, not only inside dungeons. The new option
+  "Live view only inside dungeons" limits it to dungeons and raids again; "Live view next to the
+  map" still switches it off completely.
+- Pressing M in combat opens the live view window at once, with a note in it: the game does not
+  let addons move the minimap in combat, so the minimap moves in when the fight ends.
+- With the minimap inside, the live view window is dragged by its title bar or its footer.
+- Dungeon Journal cards: the favourite star is a round gold-ringed button (like the entrance
+  button). It stays on favourites and shows on the other cards only under the mouse. Favourites
+  get a gold border and come first in the list, right after the dungeon you are in.
+- Hiding dungeons: in hide mode every card has a round tick (shown) or cross (hidden) in its
+  corner, a hidden card is veiled with "Hidden" across it, the whole card toggles, and a line at
+  the bottom says what to do. The big check boxes are gone.
+- Every boss on the dungeon maps carries the elite dragon: gold for elites and bosses, silver
+  for rare elites. It turns grey with the boss.
+
+### Fixed
+- Inside a dungeon the live view sometimes did not come up. It was tied to the dungeon's map
+  view, so it was missing whenever that view was closed, switched off, or the game had not told
+  the addon about the dungeon yet. It now follows the world map itself, and the addon checks
+  where you are every time the map opens.
+- After "show on the map" was used in combat, the next M opened the plain world map instead of
+  the dungeon's map.
+- With EllesmereUI's minimap the live view stayed on the minimap's own spot and only grew there.
+  It now moves into the live view window, keeps its place and size while the map is open, and
+  goes back to EllesmereUI's spot, size and shape afterwards.
+- With EllesmereUI's minimap the live view was a dark grey patch: EllesmereUI locks the layer the
+  minimap is drawn on, so the minimap stayed under the live view window's dark background. The
+  live view now takes that lock off while it moves the minimap and puts it back. The window's
+  background is also built around the minimap's place, and nothing of the window is drawn in
+  that place while the minimap is there, so no addon's minimap can end up under it again.
+- With EllesmereUI's minimap the live view forgot its zoom (EllesmereUI's own wheel zoom is the
+  one that runs there), and a minimap hidden by EllesmereUI's visibility rules stayed hidden
+  inside the live view.
+- The live view window no longer tries to move when it is dragged in combat with the minimap
+  inside: the game blocks that move.
+
 ## 0.7.1 (2026-11-14)
 
 ### Changed

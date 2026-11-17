@@ -15,7 +15,8 @@ local WINDOW_WIDTH, WINDOW_HEIGHT = 620, 520
 local INSET, TOP, DESCRIPTION_HEIGHT, DETAILS_HEIGHT, STEP_GAP = 18, -46, 120, 200, 6
 local COPY_BUTTON_WIDTH, COPY_BUTTON_HEIGHT, LINK_HEIGHT = 170, 26, 24
 -- other addons whose presence changes what players see
-local RELATED_ADDONS = { "Questie", "QuestieDB", "DungeonMaster", "ForeverDungeonJournal", "TomTom", "ElvUI", "Leatrix_Plus" }
+local RELATED_ADDONS = { "Questie", "QuestieDB", "DungeonMaster", "ForeverDungeonJournal", "TomTom", "ElvUI", "Leatrix_Plus",
+    "EllesmereUI", "EllesmereUIMinimap", "EllesmereUIBlizzardSkin" }
 -- newest blocked calls listed
 local MAX_LISTED_BLOCKED = 5
 
@@ -99,10 +100,16 @@ local function BlockedLines()
     return lines
 end
 
+-- The layers of the live view while it is open (LiveView.lua).
+local function LiveViewLines()
+    return ns.Live:Describe()
+end
+
 -- The details a fix needs; every part is guarded so a broken API never stops the rest.
 function BugReport.Text()
     local lines = { "---- ForeverDungeonMap bug report ----" }
-    for _, part in ipairs({ VersionLine, CharacterLine, WhereLine, JournalLine, SettingsLine, AddonsLine, BlockedLines }) do
+    local parts = { VersionLine, CharacterLine, WhereLine, JournalLine, SettingsLine, AddonsLine, LiveViewLines, BlockedLines }
+    for _, part in ipairs(parts) do
         local ok, result = pcall(part)
         if type(result) == "table" then
             for _, line in ipairs(result) do lines[#lines + 1] = line end
@@ -176,7 +183,7 @@ end
 
 local function CreateWindow()
     local frame = ns.W.Window(WINDOW_NAME, WINDOW_WIDTH, WINDOW_HEIGHT, L["Report a bug"])
-    frame:SetPoint("CENTER")
+    ns.W.PlaceWindow(frame, "CENTER")
     -- one layer above the journal (DIALOG, raised on every click), or it opens hidden behind it
     frame:SetFrameStrata("FULLSCREEN_DIALOG")
     frame:SetToplevel(true)

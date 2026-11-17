@@ -444,7 +444,9 @@ function Region:SetSize(w, h)
     checkNum("SetSize", 1, w); checkNum("SetSize", 2, h or w)
     local old = (self._w or -1) .. "x" .. (self._h or -1)
     self._w, self._h = w, h or w
-    if old ~= self._w .. "x" .. self._h and self._scripts and self._scripts.OnSizeChanged then
+    -- like the client: HookScript hooks run even when no script is set
+    local hasHandler = (self._scripts and self._scripts.OnSizeChanged) or (self._hooks and self._hooks.OnSizeChanged)
+    if old ~= self._w .. "x" .. self._h and hasHandler then
         M.FireScript(self, "OnSizeChanged", self._w, self._h)
     end
 end
@@ -604,7 +606,16 @@ function Region:Hide()
     if wasVisible then propagate(self, "OnHide") end
 end
 function Region:SetShown(v) if v then self:Show() else self:Hide() end end
-function Region:IsMouseOver() return M.mouseFocus == self end
+-- Like the client (the mouse is inside the frame's rectangle): also true while the mouse is on
+-- one of its children.
+function Region:IsMouseOver()
+    local focus = M.mouseFocus
+    while focus do
+        if focus == self then return true end
+        focus = focus._parent
+    end
+    return false
+end
 
 function Region:SetParent(p)
     if type(p) == "string" then p = _G[p] end
@@ -926,7 +937,8 @@ ZONE_CHANGED_INDOORS ENCOUNTER_START ENCOUNTER_END COMBAT_LOG_EVENT_UNFILTERED Q
 QUEST_ACCEPTED QUEST_REMOVED GET_ITEM_INFO_RECEIVED ITEM_DATA_LOAD_RESULT GROUP_ROSTER_UPDATE UNIT_CONNECTION
 PLAYER_REGEN_ENABLED PLAYER_REGEN_DISABLED PLAYER_LEVEL_UP PLAYER_TARGET_CHANGED UPDATE_INSTANCE_INFO LOOT_READY
 MINIMAP_UPDATE_ZOOM WORLD_MAP_OPEN ADDON_ACTION_BLOCKED ADDON_ACTION_FORBIDDEN UI_SCALE_CHANGED
-DISPLAY_SIZE_CHANGED BOSS_KILL QUEST_WATCH_LIST_CHANGED QUEST_DETAIL QUEST_PROGRESS QUEST_COMPLETE QUEST_FINISHED INSTANCE_ENCOUNTER_ENGAGE_UNIT UNIT_NAME_UPDATE]]):gmatch("%S+") do KNOWN_EVENTS[e] = true end
+DISPLAY_SIZE_CHANGED BOSS_KILL QUEST_WATCH_LIST_CHANGED QUEST_DETAIL QUEST_PROGRESS QUEST_COMPLETE QUEST_FINISHED INSTANCE_ENCOUNTER_ENGAGE_UNIT UNIT_NAME_UPDATE
+PLAYER_XP_UPDATE PLAYER_MONEY BAG_UPDATE_DELAYED PLAYER_DEAD PLAYER_LOGOUT]]):gmatch("%S+") do KNOWN_EVENTS[e] = true end
 if CFG.noCLEU then KNOWN_EVENTS.COMBAT_LOG_EVENT_UNFILTERED = nil end
 M.KNOWN_EVENTS = KNOWN_EVENTS
 
@@ -977,6 +989,7 @@ function Frame:GetNumRegions() return #(self._regions or {}) end
 function Frame:SetFrameLevel(l)
     checkNum("SetFrameLevel", 1, l)
     if l < 0 or l > 10000 then error("SetFrameLevel(): level must be 0..10000", 2) end
+    if self._fixedLevel then return end
     self._level = math.floor(l)
 end
 function Frame:GetFrameLevel()
@@ -985,8 +998,23 @@ function Frame:GetFrameLevel()
 end
 function Frame:SetFrameStrata(s)
     if not STRATA[s] then error(("SetFrameStrata(): invalid strata '%s'"):format(tostring(s)), 2) end
+    if self._fixedStrata then return end
     self._strata = s
 end
+-- A frame with a locked ("fixed") strata or level keeps it: SetFrameStrata / SetFrameLevel do
+-- nothing until the lock is taken off. This is read from EllesmereUI's source (it unlocks
+-- LibDBIcon's buttons before it changes their strata) and from the live view bug it explains
+-- (the minimap stayed under the window); Blizzard's documentation does not say.
+function Frame:SetFixedFrameStrata(fixed)
+    if fixed then self._strata = self:GetFrameStrata() end
+    self._fixedStrata = fixed and true or false
+end
+function Frame:HasFixedFrameStrata() return self._fixedStrata or false end
+function Frame:SetFixedFrameLevel(fixed)
+    if fixed then self._level = self:GetFrameLevel() end
+    self._fixedLevel = fixed and true or false
+end
+function Frame:HasFixedFrameLevel() return self._fixedLevel or false end
 function Frame:GetFrameStrata()
     if self._strata then return self._strata end
     return self._parent and self._parent.GetFrameStrata and self._parent:GetFrameStrata() or "MEDIUM"
@@ -1693,7 +1721,8 @@ local function CombatGuard(f, methods)
         end)
     end
 end
-CombatGuard(Minimap, { "SetParent", "SetPoint", "ClearAllPoints", "SetSize", "SetScale", "Hide", "Show", "SetFrameStrata", "SetFrameLevel" })
+CombatGuard(Minimap, { "SetParent", "SetPoint", "ClearAllPoints", "SetSize", "SetScale", "Hide", "Show", "SetFrameStrata", "SetFrameLevel",
+    "SetFixedFrameStrata", "SetFixedFrameLevel" })
 CombatGuard(MinimapCluster, { "Hide", "Show", "SetParent", "SetPoint", "ClearAllPoints" })
 
 C_Minimap = { _ground = false }
@@ -1838,6 +1867,22 @@ function GetInstanceInfo()
 end
 function UnitFactionGroup(u) return M.player.faction, M.player.faction end
 function UnitLevel(u) return M.player.level end
+-- experience, money, bags and worn gear (the dungeon recap reads them):
+-- M.bags[bag][slot] = { itemID =, stackCount = }, M.equipped[slot] = itemID
+M.player.xp, M.player.xpMax, M.player.money, M.player.realm = 1000, 5000, 12345, "Testrealm"
+M.bags = { [0] = {}, [1] = {}, [2] = {}, [3] = {}, [4] = {} }
+M.equipped = {}
+local BAG_SIZE = 16
+NUM_BAG_SLOTS = 4
+function UnitXP() return M.player.xp end
+function UnitXPMax() return M.player.xpMax end
+function GetMoney() return M.player.money end
+function GetRealmName() return M.player.realm end
+function GetInventoryItemID(_, slot) return M.equipped[slot] end
+C_Container = {
+    GetContainerNumSlots = function(bag) return M.bags[bag] and BAG_SIZE or 0 end,
+    GetContainerItemInfo = function(bag, slot) return M.bags[bag] and M.bags[bag][slot] end,
+}
 local CLASS_NAMES = { WARRIOR = "Warrior", MAGE = "Mage", PRIEST = "Priest", ROGUE = "Rogue", WARLOCK = "Warlock",
     HUNTER = "Hunter", DRUID = "Druid", SHAMAN = "Shaman", PALADIN = "Paladin" }
 M.party = {} -- { {name=, class=} }
@@ -1861,7 +1906,7 @@ end
 function UnitIsDead(u) return u == "target" and M.target ~= nil and M.target.dead == true end
 function UnitIsUnit(a, b) return a == b end
 function UnitIsConnected() return true end
-function UnitIsDeadOrGhost() return false end
+function UnitIsDeadOrGhost(u) return u == "player" and M.player.ghost == true end
 function UnitExists(u) return u == "player" or (u == "target" and M.target ~= nil) or UnitName(u) ~= nil end
 function IsInRaid() return false end
 function IsInGroup() return #M.party > 0 end

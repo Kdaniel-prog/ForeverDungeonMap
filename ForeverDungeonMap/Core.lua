@@ -35,24 +35,35 @@ blockedWatcher:SetScript("OnEvent", RecordBlocked)
 
 ns.MEDIA = "Interface\\AddOns\\ForeverDungeonMap\\Media\\"
 ns.SLASH_COMMAND = "/fdmap"
+-- frame name of the live view window (also the key of its saved spot)
+ns.LIVE_WINDOW_NAME = "ForeverDungeonMapLive"
 -- Spots in the data are in percent of the map (0..100); map canvases want 0..1.
 ns.PERCENT = 100
 local WORLD_MAP_COMBAT_KEY = "worldmap"
+-- Blizzard's addon that creates WorldMapFrame
+local WORLD_MAP_ADDON = "Blizzard_WorldMap"
 local ADDON_PREFIX = "ForeverDungeonMap"
 
 -- Saved settings and their defaults.
--- liveZoom: minimap zoom of the live view (0 = farthest out); livePos: { point, relativePoint, x, y };
+-- liveZoom: minimap zoom of the live view (0 = farthest out);
+-- liveView: the live view opens next to the world map;
+-- liveViewOnlyInDungeons: ... but only inside a dungeon or raid;
 -- killed: { instanceID, names = { [bossName] = true } } survives /reload;
 -- questPins: show where dungeon quests start and end on the world map;
 -- autoDungeonMap: the world map opens on our dungeon view inside a dungeon;
--- favourites: { [instanceID] = true }.
+-- favourites: { [instanceID] = true };
+-- windowPositions: { [window name] = { point, relativePoint, x, y } } of the windows the player dragged;
+-- characters: { ["Name-Realm"] = { hidden = { [instanceID] = true }, runs = { newest first } } }.
 ns.DEFAULTS = {
     liveZoom = 0,
-    livePos = nil,
+    liveView = true,
+    liveViewOnlyInDungeons = false,
     questPins = true,
     autoDungeonMap = true,
     favourites = {},
     killed = {},
+    windowPositions = {},
+    characters = {},
 }
 local SETTINGS_VERSION = 3
 
@@ -128,6 +139,16 @@ function ns.KeyHint(keyActions)
     return table.concat(parts, " · ")
 end
 
+-- A plain number from a game API, or nil: missing API, error, or a "secret" value (the client
+-- hides some values from addons in combat; they cannot be compared or added).
+function ns.SafeNumber(api, ...)
+    if type(api) ~= "function" then return nil end
+    local ok, value = pcall(api, ...)
+    if not ok or type(value) ~= "number" then return nil end
+    if issecretvalue and issecretvalue(value) then return nil end
+    return value
+end
+
 -- instanceID, name when the player is inside a dungeon or raid, else nil.
 function ns.GetPlayerInstance()
     local inInstance, instanceType = IsInInstance()
@@ -148,6 +169,24 @@ local function Fire(list, ...)
         local ok, problem = pcall(callback, ...)
         if not ok then geterrorhandler()(problem) end
     end
+end
+
+local worldMapWaiters = {}
+
+-- Run callback once WorldMapFrame exists: now, or when Blizzard's world map addon has loaded
+-- (it loads on demand on some clients).
+function ns.WhenWorldMapLoaded(callback)
+    if WorldMapFrame then
+        callback()
+    else
+        worldMapWaiters[#worldMapWaiters + 1] = callback
+    end
+end
+
+local function RunWorldMapWaiters()
+    local waiters = worldMapWaiters
+    worldMapWaiters = {}
+    Fire(waiters)
 end
 
 -- Bosses killed in ns.killedInstance ([bossName] = true); kept while you stay in that dungeon.
@@ -197,12 +236,29 @@ local function LoadSettings()
         ns.db.livePos = nil
         ns.db.version = SETTINGS_VERSION
     end
+    -- the live view's spot is kept with the other windows' now
+    if ns.db.livePos then
+        ns.db.windowPositions[ns.LIVE_WINDOW_NAME] = ns.db.livePos
+        ns.db.livePos = nil
+    end
     for _, entry in ipairs(pendingBlocked) do SaveBlocked(entry) end
     pendingBlocked = {}
     local killed = ns.db.killed
     if killed and killed.instanceID and type(killed.names) == "table" then
         ns.killedInstance, ns.killed = killed.instanceID, killed.names
     end
+end
+
+-- What the addon keeps for this character only: hidden = { [instanceID] = true } (dungeons left
+-- out of the journal's list), runs = { newest first } (dungeon recaps).
+function ns.Character()
+    local key = (UnitName("player") or "?") .. "-" .. (GetRealmName and GetRealmName() or "?")
+    local characters = ns.db.characters
+    characters[key] = characters[key] or {}
+    local character = characters[key]
+    character.hidden = character.hidden or {}
+    character.runs = character.runs or {}
+    return character
 end
 
 -- Entering or leaving an instance: kills reset in a new dungeon, listeners hear the change.
@@ -244,11 +300,19 @@ local function OnLootReady()
     for slot = 1, GetNumLootItems() do MarkKilledByGUID((GetLootSourceInfo(slot))) end
 end
 
+-- The instance is read again whenever the world map opens: a zone event the client skipped or
+-- sent too early must not leave M without the dungeon. Hooked before any other file's hook.
+local function ReadInstanceOnMapOpen()
+    ns.WhenWorldMapLoaded(function() WorldMapFrame:HookScript("OnShow", OnZoneChanged) end)
+end
+
 local EVENT_HANDLERS = {
     ADDON_LOADED = function(loadedName)
+        if loadedName == WORLD_MAP_ADDON then RunWorldMapWaiters() end
         if loadedName ~= addonName then return end
         LoadSettings()
         SubscribeWatchers()
+        ReadInstanceOnMapOpen()
         Fire(callbacks.load)
     end,
     ENCOUNTER_END = function(encounterID, encounterName, _, _, success)
@@ -373,8 +437,12 @@ end
 local SLASH_ACTIONS = {
     journal = function() ns.Journal:Toggle() end,
     resetlive = function()
-        ns.db.livePos = nil
+        ns.db.windowPositions[ns.LIVE_WINDOW_NAME] = nil
         ns.Print("live view position reset")
+    end,
+    resetwindows = function()
+        ns.W.ResetWindowPositions()
+        ns.Print("window positions reset")
     end,
     resetkills = function()
         ns.killed = {}
@@ -387,7 +455,7 @@ SLASH_ACTIONS.config = function()
     if ns.Settings and ns.Settings.Open then ns.Settings.Open() end
 end
 SLASH_ACTIONS.help = function()
-    ns.Print("%s: dungeon map  ·  journal  ·  config (options)  ·  debug [dungeon]  ·  export  ·  bug (report a bug)  ·  resetlive  ·  resetkills", ns.SLASH_COMMAND)
+    ns.Print("%s: dungeon map  ·  journal  ·  config (options)  ·  debug [dungeon]  ·  export  ·  bug (report a bug)  ·  recap  ·  resetwindows  ·  resetlive  ·  resetkills", ns.SLASH_COMMAND)
 end
 SLASH_ACTIONS.j = SLASH_ACTIONS.journal
 SLASH_ACTIONS.debug = function(argument)
@@ -398,6 +466,9 @@ SLASH_ACTIONS.export = function()
 end
 SLASH_ACTIONS.bug = function()
     if ns.BugReport then ns.BugReport.Open() end
+end
+SLASH_ACTIONS.recap = function()
+    if ns.Recap then ns.Recap.Open() end
 end
 
 SLASH_FOREVERDUNGEONMAP1 = ns.SLASH_COMMAND

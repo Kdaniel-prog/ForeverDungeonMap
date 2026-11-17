@@ -90,10 +90,31 @@ ns.SetSetting("bossIconScale", startScale)
 Step("ShowHome", function() ns.Journal:ShowHome() end)
 local grid = _G.ForeverDungeonMapJournalGrid:GetScrollChild()
 local firstCard = Mock.Shown(grid._children)[1]
-Step("star the first card", function() Mock.Click(firstCard.Star) end)
+local lastCard = Mock.Shown(grid._children)[#Mock.Shown(grid._children)]
+Check("cards stay clean: no star on a card that is not a favourite", not lastCard.Star:IsShown())
+Step("hover the last card", function() Mock.Enter(lastCard) end)
+Check("the star shows on the hovered card", lastCard.Star:IsShown())
+-- the client: the card's OnLeave comes first, the mouse is already on the star (inside the card)
+Step("move onto its star", function()
+    Mock.mouseFocus = lastCard.Star
+    Mock.Leave(lastCard)
+    Mock.Enter(lastCard.Star)
+end)
+Check("the star stays while the mouse is on it", lastCard.Star:IsShown())
+-- cards are pooled: after the click this card may show another dungeon
+local starredID = lastCard.instanceID
+Step("star the last card", function() Mock.Click(lastCard.Star) end)
+Step("leave the star", function() Mock.Leave(lastCard.Star) end)
 local favourites = ns.Setting("favourites")
-Check("star saves the favourite", type(favourites) == "table" and favourites[firstCard.instanceID] == true)
-Check("star turns gold", not firstCard.Star.Icon:IsDesaturated())
+Check("star saves the favourite", type(favourites) == "table" and favourites[starredID] == true)
+firstCard = Mock.Shown(grid._children)[1]
+local hereFirst = ns.instanceID and ns.DUNGEONS[ns.instanceID] and 2 or 1
+local starredCard = Mock.Shown(grid._children)[hereFirst]
+Check("a favourite moves to the front (after the dungeon you are in)", starredCard.instanceID == starredID,
+    tostring(starredCard.instanceID) .. " / " .. tostring(starredID))
+Check("star turns gold and stays without the mouse", starredCard.Star:IsShown() and not starredCard.Star.Icon:IsDesaturated())
+Check("a favourite card has the gold border", starredCard.selected == true)
+firstCard = starredCard
 local chip = Mock.FindChild(_G.ForeverDungeonMapJournal, function(child) return child.Icon and child.Icon.GetTexture and child.Icon:GetTexture() == ns.TEX.FAVOURITE and child.Underline end)
 Step("favourites chip", function() Mock.Click(chip) end)
 Check("favourites filter shows only favourites", #Mock.Shown(grid._children) == 1)
@@ -102,6 +123,63 @@ Step("unstar in the header", function()
     Mock.Click(Mock.FindChild(_G.ForeverDungeonMapJournal, function(child) return child.Star == nil and child.Icon and child.Icon.GetTexture and child.Icon:GetTexture() == ns.TEX.FAVOURITE and child:IsVisible() and not child.Underline end))
 end)
 Check("header star removes the favourite", not (ns.Setting("favourites") or {})[firstCard.instanceID])
+
+-- hide mode: a round tick / cross on every card, a veil and "Hidden" over a hidden one
+Step("ShowHome for hide mode", function() ns.Journal:ShowHome() end)
+local allChipForHide = Mock.FindChild(_G.ForeverDungeonMapJournal, function(child) return child.Label and child.Label:GetText() == "All" end)
+Step("All chip", function() Mock.Click(allChipForHide) end)
+local hideButton = Mock.FindChild(_G.ForeverDungeonMapJournal, function(child)
+    return child.Label and child.Label.GetText and child.Label:GetText() == "Hide dungeons"
+end)
+Check("Hide dungeons button", hideButton ~= nil)
+if hideButton then
+    local countBefore = #Mock.Shown(grid._children)
+    Step("enter hide mode", function() Mock.Click(hideButton) end)
+    local target = Mock.Shown(grid._children)[countBefore]
+    Check("hide mode: every card has the round toggle with a tick, no star", target.HideToggle:IsShown()
+        and target.HideToggle.Icon:GetTexture() == ns.TEX.TICK and not target.Star:IsShown())
+    local hintShown = false
+    for _, child in ipairs(Mock.Descendants(_G.ForeverDungeonMapJournal)) do
+        for _, region in ipairs({ child:GetRegions() }) do
+            if region.GetText and region:IsVisible() and (region:GetText() or ""):find("hide or show them", 1, true) then hintShown = true end
+        end
+    end
+    Check("hide mode: the hint says what to do", hintShown)
+    local targetID = target.instanceID
+    Step("click the card", function() Mock.Click(target) end)
+    local hiddenCard
+    for _, card in ipairs(Mock.Shown(grid._children)) do if card.instanceID == targetID then hiddenCard = card end end
+    Check("the hidden card stays in place with a cross, the veil and \"Hidden\"", hiddenCard ~= nil
+        and hiddenCard.HideToggle.Icon:GetTexture() == ns.TEX.CROSS and hiddenCard.HiddenVeil:IsShown()
+        and hiddenCard.HiddenLabel:IsShown() and hiddenCard.Art:IsDesaturated())
+    Step("Done", function() Mock.Click(hideButton) end)
+    Check("Done: the hidden dungeon is out of the list, the button counts it",
+        #Mock.Shown(grid._children) == countBefore - 1 and hideButton.Label:GetText() == "Hidden (1)", hideButton.Label:GetText())
+    Step("hide mode again", function() Mock.Click(hideButton) end)
+    for _, card in ipairs(Mock.Shown(grid._children)) do
+        if card.instanceID == targetID then Step("show it again with its toggle", function() Mock.Click(card.HideToggle) end) end
+    end
+    Step("Done again", function() Mock.Click(hideButton) end)
+    Check("shown again: the list is whole, no veil left", #Mock.Shown(grid._children) == countBefore
+        and not Mock.Shown(grid._children)[1].HiddenVeil:IsShown())
+end
+
+-- the elite dragon on every boss pin of the dungeon map: silver for rare elites, gold for the others
+Step("journal map tab of Wailing Caverns", function() ns.Journal:OpenDungeon(43, "map") end)
+local journalMap = ns.Journal.map
+if journalMap and journalMap.numPins then
+    local gold, silver, without = 0, 0, {}
+    for i = 1, journalMap.numPins do
+        local pin = journalMap.pins[i]
+        local atlas = pin.Elite:IsShown() and pin.Elite:GetAtlas()
+        if atlas == ns.TEX.ELITE_ATLAS.gold then gold = gold + 1
+        elseif atlas == ns.TEX.ELITE_ATLAS.silver then silver = silver + 1
+        else without[#without + 1] = pin.boss.name end
+        if pin.boss.rare then Check("rare " .. pin.boss.name .. ": silver dragon", atlas == ns.TEX.ELITE_ATLAS.silver, tostring(atlas)) end
+    end
+    Check("every boss pin has an elite dragon", #without == 0 and gold > 0, table.concat(without, ", "))
+    Check("the rare elite has the silver one", silver >= 1, silver)
+end
 
 -- tooltip backing
 Step("ShowHome", function() ns.Journal:ShowHome() end)

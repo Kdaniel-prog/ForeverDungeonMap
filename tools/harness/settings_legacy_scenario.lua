@@ -23,7 +23,7 @@ for _, child in ipairs(panel and panel._children or {}) do
     if child:IsObjectType("CheckButton") then checkboxes[#checkboxes + 1] = child end
     if child:IsObjectType("Slider") then sliders[#sliders + 1] = child end
 end
-Check("three checkboxes and one slider", #checkboxes == 3 and #sliders == 1, #checkboxes .. " / " .. #sliders)
+Check("five checkboxes and one slider", #checkboxes == 5 and #sliders == 1, #checkboxes .. " / " .. #sliders)
 
 Step("show panel", function() panel:Show(); M.FireScript(panel, "OnShow") end)
 Check("controls show the saved values", checkboxes[1]:GetChecked() == true and math.abs(sliders[1]:GetValue() - ns.Settings.Get("bossIconScale")) < 0.001)

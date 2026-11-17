@@ -60,7 +60,7 @@ ns.C = C
 -- Alpha values of the skin.
 ns.ALPHA = {
     rowGlow = 0.30, cardGlow = 0.15, parchmentGlow = 0.18, headerArt = 0.75, lore = 0.18,
-    mapLore = 0.12, disabled = 0.5, divider = 0.8, cardArt = 0.85,
+    mapLore = 0.12, disabled = 0.5, divider = 0.8, cardArt = 0.85, hiddenArt = 0.3,
 }
 
 -- "|cffRRGGBB" for a palette colour.
@@ -159,6 +159,11 @@ ns.TEX = {
     FLOOR_ICON = "Interface\\Icons\\INV_Misc_Map02",
     LFG_DUNGEON = "Interface\\LFGFrame\\LFGIcon-Dungeon",
     LFG_PREFIX = "Interface\\LFGFrame\\LFGIcon-",
+    -- journal home: "Hide dungeons" and "Recap"; recap pills: time and deaths
+    HIDE = "Interface\\Icons\\Ability_Stealth",
+    RECAP = "Interface\\Icons\\INV_Scroll_03",
+    CLOCK = "Interface\\Icons\\INV_Misc_PocketWatch_01",
+    DEATH = "Interface\\Icons\\Ability_Rogue_FeignDeath",
     CHAIN = ns.MEDIA .. "Chain",
 }
 ns.TEX.ACTION_COORDS = { 0, 0.625, 0, 0.6875 }

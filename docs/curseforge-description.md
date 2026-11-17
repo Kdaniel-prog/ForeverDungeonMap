@@ -9,8 +9,8 @@
 
 - **Press M in a dungeon:** the dungeon's own map, with every floor, boss portraits where each
   boss stands, and an X when a boss is dead.
-- **Live view:** your minimap, enlarged next to the map, shows you and your group inside the
-  dungeon.
+- **Live view:** your minimap, enlarged next to the map whenever the map is open, shows you and
+  your group, inside dungeons too (or only there, if you prefer).
 - **Dungeon Journal:** every dungeon, including the new WoW Forever ones, with bosses, loot,
   quests, quest chains and rewards.
 - **Quest pins** on the world map: where dungeon quests start (!) and end (?). Click one for a

@@ -302,7 +302,7 @@ end
 -- Boss pin number i (made on first use): click opens the boss, right-click is "back".
 function MapCanvas:Pin(i)
     if self.pins[i] then return self.pins[i] end
-    local pin = W.CreatePortrait(self.area, PIN_SIZE, { orderBadge = true, mouse = true })
+    local pin = W.CreatePortrait(self.area, PIN_SIZE, { orderBadge = true, mouse = true, eliteDragon = true })
     pin:RegisterForClicks("LeftButtonUp", "RightButtonUp")
     pin:SetScript("OnClick", function(clicked, button)
         if button == "RightButton" then

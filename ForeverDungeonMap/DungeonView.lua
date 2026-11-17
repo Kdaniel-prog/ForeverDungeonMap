@@ -1,7 +1,7 @@
 -- ForeverDungeonMap - dungeon view on the world map.
 -- Inside a dungeon, opening the world map (M) shows the dungeon's own map (MapCanvas: art,
--- floors, zoom/drag, boss portraits; a boss opens its loot and quests in the Dungeon Journal)
--- and the live view next to the map. Right-click goes one level out to the entrance's zone.
+-- floors, zoom/drag, boss portraits; a boss opens its loot and quests in the Dungeon Journal).
+-- Right-click goes one level out to the entrance's zone.
 -- Taint: we never call WorldMapFrame:SetMapID; map changes go through ns.ShowWorldMap
 -- (C_Map.OpenWorldMap, out of combat only).
 -- Copyright (C) 2026 kiszeldaniel. Licensed under the GNU GPL v3 (see LICENSE).
@@ -30,7 +30,6 @@ local RESERVED_RIGHT = DUNGEONS_BUTTON_WIDTH + 2 * HEADER_RIGHT_INSET
 -- Blizzard changes the map right after opening it; that change must not close our view.
 local OPEN_GRACE_SECONDS = 0.5
 local EXPECTED_MAP_SECONDS = 2
-local LIVE_RECHECK_SECONDS = 0.2
 local MAX_FRAME_LEVEL = 8800
 local HINT = ns.KeyHint({ { "Right-click", "one map up" }, { "Wheel", "zoom" }, { "Drag", "move" } })
 
@@ -39,7 +38,7 @@ ns.View = View
 
 local frame, map, header, headerArt, dungeonIcon, title, subtitle, journalTab, questTab, dungeonsButton
 
-local state = { instanceID = nil, dungeon = nil, inside = false, openedAt = 0, expectedMap = nil, expectedUntil = 0 }
+local state = { instanceID = nil, dungeon = nil, openedAt = 0, expectedMap = nil, expectedUntil = 0 }
 
 local function Host() return WorldMapFrame and WorldMapFrame.ScrollContainer end
 local function Bosses() return ns.BOSSES[state.instanceID] or {} end
@@ -130,7 +129,6 @@ local function CreateUI()
     })
     View.map = map
     CreateHeader()
-    frame:SetScript("OnHide", function() ns.Live:Hide() end)
 end
 
 -- Tabs right after the name/sub-line, never under the map's own top-right controls;
@@ -178,13 +176,12 @@ local function UpdateNavButtons()
     if ns.NavButtons then ns.NavButtons.Update() end
 end
 
--- Show the map of an instance (inside it, the live view opens next to the world map).
+-- Show the map of an instance.
 function View:Open(instanceID, name)
     if not Host() or not instanceID then return end
     CreateUI()
     local dungeon = ns.GetDungeon(instanceID, name)
     state.instanceID, state.dungeon = instanceID, dungeon
-    state.inside = ns.instanceID == instanceID
     state.openedAt = GetTime()
     View.lastShownInstanceID = instanceID
     FillHeader(instanceID, dungeon)
@@ -192,17 +189,11 @@ function View:Open(instanceID, name)
     frame:Show()
     PlaceTabs()
     map:SetDungeon(instanceID, name)
-    if state.inside then ns.Live:Show() else ns.Live:Hide() end
     UpdateNavButtons()
-    -- the world map finishes opening after OnShow: make sure the live view stayed up
-    C_Timer.After(LIVE_RECHECK_SECONDS, function()
-        if state.inside and View:IsShown() and not ns.Live:IsShown() and not ns.Live.closedByUser then ns.Live:Show() end
-    end)
 end
 
 function View:Close()
     if frame and frame:IsShown() then frame:Hide() end
-    ns.Live:Hide()
     UpdateNavButtons()
 end
 
@@ -222,8 +213,9 @@ function View:ShowSpot(spot)
     if not (spot and spot.map and spot.x and spot.y) then return end
     self:Close()
     ns.SetHighlight(spot)
-    -- the map opens on the spot's zone: do not cover it with the dungeon view
-    if not WorldMapFrame:IsShown() then View.suppressOpen = true end
+    -- the map opens on the spot's zone: do not cover it with the dungeon view. Only that
+    -- opening: in combat the map stays closed, and a later M must show the dungeon again.
+    if not WorldMapFrame:IsShown() then View.suppressOpenUntil = GetTime() + EXPECTED_MAP_SECONDS end
     if WorldMapFrame:IsShown() and WorldMapFrame:GetMapID() == spot.map then
         if ns.RefreshPins then ns.RefreshPins() end
     else
@@ -238,11 +230,9 @@ end
 
 -- The world map opened: show the pending dungeon, or the one we are in.
 local function OnWorldMapShown()
-    ns.Live.closedByUser = false
-    if View.suppressOpen then
-        View.suppressOpen = nil
-        return
-    end
+    local suppressed = View.suppressOpenUntil and GetTime() <= View.suppressOpenUntil
+    View.suppressOpenUntil = nil
+    if suppressed then return end
     -- inside a dungeon the map opens on our view unless the player turned that off
     local instanceID = View.pendingOpen or (ns.Setting("autoDungeonMap") and ns.instanceID or nil)
     View.pendingOpen = nil
@@ -281,17 +271,11 @@ local function Setup()
 end
 
 ns.OnLoad(function()
-    if WorldMapFrame then
+    local loadedLater = not WorldMapFrame
+    ns.WhenWorldMapLoaded(function()
         Setup()
-        return
-    end
-    local loader = CreateFrame("Frame")
-    loader:RegisterEvent("ADDON_LOADED")
-    loader:SetScript("OnEvent", function(self, _, loadedName)
-        if loadedName ~= "Blizzard_WorldMap" then return end
-        Setup()
-        if ns.SetupPins then ns.SetupPins() end
-        self:UnregisterEvent("ADDON_LOADED")
+        -- the pins could not get on a map that did not exist yet
+        if loadedLater and ns.SetupPins then ns.SetupPins() end
     end)
 end)
 

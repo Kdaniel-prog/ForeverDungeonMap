@@ -8,9 +8,17 @@ ns.AddTranslations("frFR", {
     ["Quest pins on the world map"] = "Marqueurs de quête sur la carte du monde",
     ["Show where dungeon quests start (!) and are turned in (?) on zone and continent maps."] =
         "Indique sur les cartes de zone et de continent où commencent (!) et où se rendent (?) les quêtes de donjon.",
-    ["Live view in dungeons"] = "Vue en direct dans les donjons",
-    ["Show the live dungeon map window while you are inside a dungeon."] =
-        "Affiche la fenêtre de carte du donjon en direct tant que vous êtes dans un donjon.",
+    ["Live view next to the map"] = "Vue en direct à côté de la carte",
+    ["Show your minimap enlarged next to the world map while the map is open."] =
+        "Affiche votre minicarte agrandie à côté de la carte du monde tant que la carte est ouverte.",
+    ["Done"] = "Terminé",
+    ["Click the dungeons to hide or show them, then press Done."] =
+        "Cliquez sur les donjons pour les masquer ou les afficher, puis appuyez sur Terminé.",
+    ["Live view only inside dungeons"] = "Vue en direct uniquement dans les donjons",
+    ["Open the live view only while you are inside a dungeon or raid."] =
+        "N'ouvre la vue en direct que lorsque vous êtes dans un donjon ou un raid.",
+    ["The minimap cannot move in combat. It appears here when the fight ends."] =
+        "La minicarte ne peut pas être déplacée en combat. Elle apparaît ici à la fin du combat.",
     ["Dungeon map on M inside dungeons"] = "Carte du donjon avec M dans les donjons",
     ["Opening the world map inside a dungeon also opens the dungeon's own map."] =
         "Ouvrir la carte du monde dans un donjon ouvre aussi la carte du donjon.",

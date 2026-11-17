@@ -48,6 +48,7 @@ QuestPins.lua
 QuestPins.xml
 Settings.lua
 Rewards.lua
+Recap.lua
 Learn.lua
 Debug.lua
 BugReport.lua

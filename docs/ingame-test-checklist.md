@@ -50,6 +50,15 @@ Logs: `B:\World of Warcraft\_forever_\Logs\General.log` (Lua errors) and `...\Lo
     Shift-click opens the quest in the journal.
 16. [ ] Hall of Thanes shows the Old Ironforge tiles in the right order, with no seams or gaps.
 
+## 2b. Journal cards and the map's elite dragons
+16a. [ ] Home page: only favourite cards show a star; hovering a card shows its faint star; a
+    click makes it gold, the card gets a gold border and moves to the front.
+16b. [ ] "Hide dungeons": every card gets a round tick, the hint line shows at the bottom left. A
+    click on a card (or its tick) veils it with "Hidden" and a cross; "Done" removes it from the
+    list and the button reads "Hidden (1)". Bringing it back works the same way.
+16c. [ ] Dungeon map (M in a dungeon, or the journal's Map tab): every boss portrait has a small
+    gold dragon on its top edge, rares a silver one; a defeated boss's dragon is grey.
+
 ## 3. Inside a dungeon, out of combat
 17. [ ] Press M. The dungeon map opens, boss portraits sit where the bosses stand, floors switch,
     and wheel zoom and drag work.
@@ -62,8 +71,37 @@ Logs: `B:\World of Warcraft\_forever_\Logs\General.log` (Lua errors) and `...\Lo
 19. [ ] Close the live view with X. It stays closed until the map is reopened.
 20. [ ] Close the map. The minimap is back exactly as before: shape (round, or your square one),
     position, zoom, zone text, and buttons clickable.
-21. [ ] Untick "Live view in dungeons" with the map open: the minimap goes home at once. Tick it
-    again, and the live view returns on the next map open.
+21. [ ] Untick "Live view next to the map" with the map open: the minimap goes home at once. Tick
+    it again: the live view is back.
+21-1. [ ] Navigate the map away from the dungeon (nav bar, or right-click the dungeon map): the
+    dungeon view steps aside, the live view stays.
+21-2. [ ] Untick "Dungeon map on M inside dungeons" and press M: no dungeon map, but the live view
+    opens. Tick it again.
+
+## 3a. Outside a dungeon
+21-3. [ ] Press M in a zone or a city. The live view opens next to the map and shows the zone
+    around you; closing the map puts the minimap back exactly.
+21-4. [ ] Tick "Live view only inside dungeons". Press M outside: no live view. Walk into a
+    dungeon and press M: the live view opens. Untick the option again.
+
+## 3b. Inside a dungeon, with EllesmereUI's minimap enabled
+The headless `ellesmere_scenario.lua` rebuilds EllesmereUI's side from its source; these steps
+are the proof on the real client.
+21a. [ ] Press M. The enlarged minimap is inside the live view window, not on EllesmereUI's spot,
+    and stays there when the map is maximized, minimized or the quest log opens. It is as bright
+    as the normal minimap: no dark grey patch over it. (If there is one: `/fdmap bug`, "Copy
+    everything" - the "Live view" lines say which layer the window and the minimap are on.)
+21b. [ ] The player arrow and the group are visible up to the edges of the live view (with
+    EllesmereUI's Rectangular shape and with its Forever Square frame and zone title), and
+    EllesmereUI's border runs around the whole live view, not as a small box in the middle.
+21c. [ ] Drag the live view window by its title bar or its footer: the minimap stays visible on
+    top of it. Hovering the dots on the minimap shows their tooltips; the wheel zooms.
+21d. [ ] Close the map. The minimap is back on EllesmereUI's spot with its size, shape and border,
+    and EllesmereUI's unlock mode still moves it.
+21e. [ ] Wheel-zoom the live view, close the map and open it again: the live view opens on the
+    zoom you left it on, and EllesmereUI's minimap keeps its own zoom.
+21f. [ ] With EllesmereUI's minimap visibility on "mouse-over" (or "in combat"), press M: the
+    minimap is visible inside the live view. Close the map: it is hidden again as before.
 
 ## 4. Inside a dungeon, in combat (taint)
 22. [ ] Open the map, then pull. While in combat:
@@ -73,8 +111,11 @@ Logs: `B:\World of Warcraft\_forever_\Logs\General.log` (Lua errors) and `...\Lo
     - closing the map leaves the live view up with "(closes after combat)".
 
     After combat the minimap goes home.
-23. [ ] Press M in combat. The dungeon map shows without a live view. After combat the live view
-    appears.
+23. [ ] Press M in combat. The dungeon map shows, and the live view window opens with the note
+    that the minimap cannot move in combat; the normal minimap stays in its corner. After combat
+    the minimap moves into the window. Closing the map in combat closes the empty window at once.
+23a. [ ] With the minimap inside the live view, pull and try to drag the window: it stays put, no
+    "blocked" message. After combat it drags again.
 24. [ ] `/fdmap` in combat opens the journal's Map tab instead of the world map.
 25. [ ] Defeat a boss: it is crossed out on the map and in the journal, and stays crossed out
     after `/reload`.
@@ -86,7 +127,7 @@ Logs: `B:\World of Warcraft\_forever_\Logs\General.log` (Lua errors) and `...\Lo
 
 ## 5. Edit Mode and leaving
 27. [ ] After using the live view, open Edit Mode, then move and save the minimap. Then open Edit
-    Mode with the map open: the minimap goes home first.
+    Mode with the map open: the minimap goes home first and stays there until Edit Mode closes.
 28. [ ] Leave the dungeon. The world map opens normally and shows no dungeon view.
 29. [ ] `/fdmap resetlive` and `/fdmap resetkills` print their messages.
 

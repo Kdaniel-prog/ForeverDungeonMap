@@ -8,9 +8,17 @@ ns.AddTranslations({ "esES", "esMX" }, {
     ["Quest pins on the world map"] = "Marcadores de misión en el mapa del mundo",
     ["Show where dungeon quests start (!) and are turned in (?) on zone and continent maps."] =
         "Muestra en los mapas de zona y de continente dónde empiezan (!) y dónde se entregan (?) las misiones de mazmorra.",
-    ["Live view in dungeons"] = "Vista en directo en mazmorras",
-    ["Show the live dungeon map window while you are inside a dungeon."] =
-        "Muestra la ventana del mapa de la mazmorra en directo mientras estés dentro de una mazmorra.",
+    ["Live view next to the map"] = "Vista en directo junto al mapa",
+    ["Show your minimap enlarged next to the world map while the map is open."] =
+        "Muestra tu minimapa ampliado junto al mapa del mundo mientras el mapa esté abierto.",
+    ["Done"] = "Hecho",
+    ["Click the dungeons to hide or show them, then press Done."] =
+        "Haz clic en las mazmorras para ocultarlas o mostrarlas y luego pulsa Hecho.",
+    ["Live view only inside dungeons"] = "Vista en directo solo en mazmorras",
+    ["Open the live view only while you are inside a dungeon or raid."] =
+        "Abre la vista en directo solo mientras estés en una mazmorra o banda.",
+    ["The minimap cannot move in combat. It appears here when the fight ends."] =
+        "El minimapa no se puede mover en combate. Aparecerá aquí cuando termine el combate.",
     ["Dungeon map on M inside dungeons"] = "Mapa de la mazmorra con M dentro de mazmorras",
     ["Opening the world map inside a dungeon also opens the dungeon's own map."] =
         "Al abrir el mapa del mundo dentro de una mazmorra también se abre el mapa de la mazmorra.",

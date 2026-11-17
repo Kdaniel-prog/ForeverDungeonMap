@@ -19,10 +19,14 @@ local LEGACY_LEFT, LEGACY_TOP, LEGACY_ROW_HEIGHT, LEGACY_SLIDER_ROW_HEIGHT, LEGA
 local DEFINITIONS = {
     { key = "questPins", default = true, label = L["Quest pins on the world map"],
         tooltip = L["Show where dungeon quests start (!) and are turned in (?) on zone and continent maps."] },
-    { key = "liveView", default = true, label = L["Live view in dungeons"],
-        tooltip = L["Show the live dungeon map window while you are inside a dungeon."] },
+    { key = "liveView", default = true, label = L["Live view next to the map"],
+        tooltip = L["Show your minimap enlarged next to the world map while the map is open."] },
+    { key = "liveViewOnlyInDungeons", default = false, label = L["Live view only inside dungeons"],
+        tooltip = L["Open the live view only while you are inside a dungeon or raid."] },
     { key = "autoDungeonMap", default = true, label = L["Dungeon map on M inside dungeons"],
         tooltip = L["Opening the world map inside a dungeon also opens the dungeon's own map."] },
+    { key = "recapPopup", default = true, label = L["Recap after a dungeon"],
+        tooltip = L["Show what happened (time, experience, loot) when you leave a dungeon."] },
     { key = "bossIconScale", default = 1.0, label = L["Boss icon size on maps"],
         tooltip = L["Size of the boss portraits on the dungeon maps."], slider = { min = 0.6, max = 1.6, step = 0.1 } },
 }

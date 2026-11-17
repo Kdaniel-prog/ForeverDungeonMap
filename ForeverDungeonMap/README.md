@@ -14,10 +14,12 @@ Dungeon maps and a Dungeon Journal for **WoW Forever** (`## Interface: 16001`).
 - **Dungeon map on M.** Inside a dungeon, the world map shows the dungeon's own map, with floors,
   zoom and drag, and round boss portraits. Hover a portrait for its loot; click it to open the
   boss in the journal.
-- **Live view.** Next to the map, the real minimap is enlarged to the map window's height. It shows
-  you, your group and other addons' minimap pins. You can drag it and zoom it with the mouse wheel.
-  Inside instances the game hides all positions from addons, but the minimap is drawn by the
-  client, so it still shows them.
+- **Live view.** Whenever the world map is open, the real minimap is enlarged next to it, to the
+  map window's height. It shows you, your group and other addons' minimap pins. You can drag it
+  and zoom it with the mouse wheel. Inside instances the game hides all positions from addons,
+  but the minimap is drawn by the client, so it still shows them. An option limits the live view
+  to dungeons and raids. In combat the game does not let the minimap move: the window opens
+  with a note and the minimap moves in when the fight ends. Works with EllesmereUI's minimap.
 - **Right-click goes one map out:** dungeon > zone with the entrance > continent.
 - **Dungeon entrance pins** on zone and continent maps. Click one to open that dungeon's map;
   Shift-click to open its journal page.

@@ -40,6 +40,12 @@ local HEADER_ICON_SIZE, HEADER_ICON_LEFT = 44, 10
 local MENU_WIDTH = 150
 local SEARCH_RESULTS, SEARCH_ROW_HEIGHT, SEARCH_WIDTH = 6, 24, 330
 local FAVOURITE_OFF_ALPHA = 0.35
+-- home header buttons ("Recap", "Hide dungeons")
+local HOME_BUTTON_HEIGHT, HOME_BUTTON_GAP = 22, 6
+-- the round star / hide toggle in a card's top left corner, the header's star, the eye before "Hidden"
+local CARD_BADGE_SIZE, CARD_BADGE_LEFT, CARD_BADGE_TOP, HEADER_STAR_SIZE, HIDDEN_ICON_SIZE = 26, 8, -6, 26, 28
+-- the hide mode hint at the bottom left of the home page, left of the bug button
+local HIDE_HINT_SIZE = 16
 local ITEM_EVENTS = { "GET_ITEM_INFO_RECEIVED", "ITEM_DATA_LOAD_RESULT" }
 
 -- What the page shows; kept for the whole session.
@@ -49,6 +55,8 @@ local selection = { instanceID = nil, tab = "bosses", boss = nil, bossIndex = ni
 local frame, home, page, search, grid, levelTag
 local filterButtons, cards = {}, {}
 local filter, query = "all", ""
+-- true while the home page lets the player tick the dungeons to leave out of the list
+local hideMode = false
 local ui = {}
 
 local function Bosses() return ns.BOSSES[selection.instanceID] or {} end
@@ -74,6 +82,25 @@ local function ToggleFavourite(instanceID)
     Journal:Refresh(true)
 end
 
+-- Dungeons this character left out of the home list.
+local function IsHidden(instanceID)
+    return ns.Character().hidden[instanceID] == true
+end
+
+local function ToggleHidden(instanceID)
+    local hidden = ns.Character().hidden
+    hidden[instanceID] = not hidden[instanceID] or nil
+    Journal:Refresh(true)
+end
+
+local function HiddenCount()
+    local count = 0
+    for instanceID in pairs(ns.Character().hidden) do
+        if ns.DUNGEONS[instanceID] then count = count + 1 end
+    end
+    return count
+end
+
 -- Gold star when the dungeon is a favourite, a faint grey one when not; words in the tooltip.
 local function SetStar(star, instanceID)
     local favourite = IsFavourite(instanceID)
@@ -82,8 +109,9 @@ local function SetStar(star, instanceID)
     W.Tooltip(star, favourite and L["Remove from favourites"] or L["Add to favourites"])
 end
 
+-- The star in a gold ring, like the header's entrance button next to it.
 local function MakeStar(parent, size)
-    local star = W.IconButton(parent, size, TEX.FAVOURITE, 2)
+    local star = W.RoundBadge(parent, size, TEX.FAVOURITE)
     star:SetScript("OnClick", function(self) ToggleFavourite(self.instanceID) end)
     return star
 end
@@ -517,10 +545,7 @@ end
 
 local function RenderHeader()
     local dungeon = CurrentDungeon()
-    W.SetHeaderArt(ui.headerArt, selection.instanceID)
-    W.SetDungeonIcon(ui.headerIcon, selection.instanceID)
-    ui.headerName:SetText(dungeon.name)
-    ui.headerSub:SetText(HeaderSubText(dungeon))
+    W.SetDungeonHeader(ui.header, selection.instanceID, dungeon.name, HeaderSubText(dungeon))
     ui.entranceButton:SetShown(ns.GetEntrance(dungeon) ~= nil)
     ui.entranceButton:ClearAllPoints()
     ui.entranceButton:SetPoint("LEFT", ui.headerName, "LEFT", math.min(360, ui.headerName:GetStringWidth()) + 10, 0)
@@ -615,21 +640,13 @@ end
 
 -- Header band: dungeon art strip, round icon, name, sub-line, entrance button, tabs.
 local function CreateHeaderBand()
-    local head = W.Panel(page)
+    local head = W.DungeonHeader(page, HEADER_ICON_SIZE, HEADER_ICON_LEFT)
     head:SetPoint("TOPLEFT", SIDE_MARGIN, -HEADER_TOP)
     head:SetPoint("TOPRIGHT", -SIDE_MARGIN, -HEADER_TOP)
     head:SetHeight(HEADER_HEIGHT)
-    ui.headerArt = W.CreateHeaderArt(head)
-    ui.headerIcon = W.CreateRoundIcon(head, HEADER_ICON_SIZE)
-    ui.headerIcon:SetPoint("LEFT", HEADER_ICON_LEFT, 0)
-    ui.headerName = head:CreateFontString(nil, "OVERLAY", ns.Font("title"))
-    ui.headerName:SetPoint("TOPLEFT", HEADER_ICON_LEFT + HEADER_ICON_SIZE + 8, -12)
-    ui.headerName:SetTextColor(C.GOLD[1], C.GOLD[2], C.GOLD[3])
-    ui.headerName:SetWordWrap(false)
-    ui.headerSub = head:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    ui.headerSub:SetPoint("TOPLEFT", ui.headerName, "BOTTOMLEFT", 0, -4)
+    ui.header, ui.headerName = head, head.Name
     ui.entranceButton = CreateEntranceButton(head)
-    ui.headerStar = MakeStar(head, 22)
+    ui.headerStar = MakeStar(head, HEADER_STAR_SIZE)
     CreateHeaderTabs(head)
 end
 
@@ -816,17 +833,28 @@ local function Matches(instanceID, dungeon)
     return false
 end
 
--- Dungeons for the filter and search: the current instance first, then by level and name.
+local function PassesFilter(instanceID, dungeon)
+    if not hideMode and IsHidden(instanceID) then return false end
+    if filter == "all" then return true end
+    if filter == "favourites" then return IsFavourite(instanceID) end
+    return (filter == "forever") == (dungeon.forever == true)
+end
+
+-- Dungeons for the filter and search: the current instance first, then the favourites, then by
+-- level and name.
+-- Hidden ones are listed only in hide mode.
 local function SortedDungeons()
     local sorted = {}
     for instanceID, dungeon in pairs(ns.DUNGEONS) do
-        local passesFilter = filter == "all" or (filter == "favourites" and IsFavourite(instanceID))
-            or (filter ~= "favourites" and (filter == "forever") == (dungeon.forever == true))
-        if passesFilter and Matches(instanceID, dungeon) then sorted[#sorted + 1] = { instanceID = instanceID, dungeon = dungeon } end
+        if PassesFilter(instanceID, dungeon) and Matches(instanceID, dungeon) then
+            sorted[#sorted + 1] = { instanceID = instanceID, dungeon = dungeon }
+        end
     end
     table.sort(sorted, function(first, second)
         local firstHere, secondHere = first.instanceID == ns.instanceID, second.instanceID == ns.instanceID
         if firstHere ~= secondHere then return firstHere end
+        local firstFavourite, secondFavourite = IsFavourite(first.instanceID), IsFavourite(second.instanceID)
+        if firstFavourite ~= secondFavourite then return firstFavourite end
         local firstLevel, secondLevel = first.dungeon.min or 0, second.dungeon.min or 0
         if firstLevel ~= secondLevel then return firstLevel < secondLevel end
         return first.dungeon.name < second.dungeon.name
@@ -865,6 +893,35 @@ local function MakeCardTexts(card)
     card.Bosses:SetTextColor(C.MUTED[1], C.MUTED[2], C.MUTED[3])
 end
 
+-- Hide mode: a round tick (shown) / cross (hidden) in the star's corner; a hidden card gets a
+-- dark veil with the eye and "Hidden" across it.
+local function MakeCardHideParts(card)
+    card.HideToggle = W.RoundBadge(card, CARD_BADGE_SIZE, TEX.TICK)
+    card.HideToggle:SetPoint("TOPLEFT", CARD_BADGE_LEFT, CARD_BADGE_TOP)
+    card.HideToggle:SetScript("OnClick", function() ToggleHidden(card.instanceID) end)
+    card.HiddenVeil = card:CreateTexture(nil, "ARTWORK")
+    W.Inset(card.HiddenVeil, PANEL_INSET)
+    card.HiddenVeil:SetColorTexture(C.SHADE_FLAT[1], C.SHADE_FLAT[2], C.SHADE_FLAT[3], C.SHADE_FLAT[4])
+    card.HiddenLabel = card:CreateFontString(nil, "OVERLAY", ns.Font("title"))
+    card.HiddenLabel:SetPoint("CENTER")
+    card.HiddenLabel:SetText(ns.IconString(TEX.HIDE, HIDDEN_ICON_SIZE) .. " " .. L["Hidden"])
+    card.HiddenLabel:SetTextColor(C.MUTED[1], C.MUTED[2], C.MUTED[3])
+end
+
+-- The star stays on a favourite; on the others it shows while the mouse is over the card, so
+-- the cards stay clean. Never in hide mode: the hide toggle has that corner then.
+local function UpdateCardStar(card)
+    local underMouse = card:IsMouseOver() or card.Star.hovered
+    card.Star:SetShown(not hideMode and (IsFavourite(card.instanceID) or underMouse) and true or false)
+end
+
+-- The card's star in its top left corner; leaving the star refreshes the card (UpdateCardStar).
+local function MakeCardStar(card)
+    card.Star = MakeStar(card, CARD_BADGE_SIZE)
+    card.Star:SetPoint("TOPLEFT", CARD_BADGE_LEFT, CARD_BADGE_TOP)
+    card.Star:HookScript("OnLeave", function() W.ApplyVisual(card) end)
+end
+
 local function Card(index)
     if cards[index] then return cards[index] end
     local card = CreateFrame("Button", nil, grid, "BackdropTemplate")
@@ -875,12 +932,16 @@ local function Card(index)
     MakeCardTexts(card)
     card.Icon = W.CreateRoundIcon(card, 40)
     card.Icon:SetPoint("BOTTOMRIGHT", -12, 10)
-    card.Star = MakeStar(card, 22)
-    card.Star:SetPoint("TOPLEFT", 10, -9)
-    card:SetScript("OnClick", function(self) Journal:OpenDungeon(self.instanceID) end)
+    MakeCardStar(card)
+    MakeCardHideParts(card)
+    -- in hide mode a click anywhere on the card ticks it, like its check box
+    card:SetScript("OnClick", function(self)
+        if hideMode then ToggleHidden(self.instanceID) else Journal:OpenDungeon(self.instanceID) end
+    end)
     card.OnVisual = function(self, hover)
-        local brightness = hover and 1 or ns.ALPHA.cardArt
+        local brightness = self.dimmed and ns.ALPHA.hiddenArt or (hover and 1 or ns.ALPHA.cardArt)
         self.Art:SetVertexColor(brightness, brightness, brightness)
+        UpdateCardStar(self)
     end
     W.Hoverable(card, "card")
     cards[index] = card
@@ -927,6 +988,34 @@ local function FillCard(card, instanceID, dungeon)
     card.Tag:SetText(CardTag(instanceID, dungeon))
     card.Star.instanceID = instanceID
     SetStar(card.Star, instanceID)
+    -- a favourite keeps the gold border
+    card.selected = IsFavourite(instanceID) and not hideMode
+end
+
+-- The card's hide mode look: tick or cross, the veil and "Hidden", grey art; the whole card
+-- says what a click does.
+local function FillCardHideParts(card, instanceID)
+    local hidden = hideMode and IsHidden(instanceID)
+    local action = hidden and L["Show this dungeon again"] or L["Hide this dungeon"]
+    card.HideToggle:SetShown(hideMode)
+    card.HideToggle.Icon:SetTexture(hidden and TEX.CROSS or TEX.TICK)
+    W.Tooltip(card.HideToggle, action)
+    W.Tooltip(card, hideMode and action or nil)
+    card.HiddenVeil:SetShown(hidden)
+    card.HiddenLabel:SetShown(hidden)
+    card.Art:SetDesaturated(hidden)
+    card.dimmed = hidden
+end
+
+-- "Hide dungeons", "Hidden (3)" while some are hidden, "Done" in hide mode.
+local function UpdateHideButton()
+    local count = HiddenCount()
+    local label = count > 0 and L["Hidden (%d)"]:format(count) or L["Hide dungeons"]
+    ui.hideButton.Label:SetText(hideMode and L["Done"] or label)
+    ui.hideButton.Icon:SetTexture(hideMode and TEX.TICK or TEX.HIDE)
+    ui.hideButton:SetSelected(hideMode)
+    W.FitTab(ui.hideButton)
+    ui.hideHint:SetShown(hideMode)
 end
 
 local function RenderHome()
@@ -934,6 +1023,7 @@ local function RenderHome()
     for index, item in ipairs(items) do
         local card = Card(index)
         FillCard(card, item.instanceID, item.dungeon)
+        FillCardHideParts(card, item.instanceID)
         local column, row = (index - 1) % CARD_COLUMNS, math.floor((index - 1) / CARD_COLUMNS)
         card:ClearAllPoints()
         card:SetPoint("TOPLEFT", column * (CARD_WIDTH + CARD_GAP_X), -row * (CARD_HEIGHT + CARD_GAP_Y))
@@ -944,6 +1034,30 @@ local function RenderHome()
     grid:SetHeight(math.max(1, math.ceil(#items / CARD_COLUMNS) * (CARD_HEIGHT + CARD_GAP_Y)))
     levelTag:SetText(L["Your level: %d"]:format(UnitLevel("player") or 1))
     for key, button in pairs(filterButtons) do button:SetSelected(key == filter) end
+    UpdateHideButton()
+    ui.homeEmpty:SetShown(#items == 0 and query == "" and filter == "all" and not hideMode)
+end
+
+-- Right of the filter chips: "Hide dungeons" (hide mode on / off) and "Recap" (the dungeon runs).
+local function CreateHomeButtons()
+    ui.hideButton = W.Tab(home, L["Hide dungeons"], TEX.HIDE, nil, HOME_BUTTON_HEIGHT)
+    ui.hideButton:SetPoint("RIGHT", levelTag, "LEFT", -2 * HOME_BUTTON_GAP, 0)
+    W.Tooltip(ui.hideButton, L["Hide dungeons"], L["Tick the dungeons this character does not want in the list, then press Done."])
+    ui.hideButton:SetScript("OnClick", function()
+        hideMode = not hideMode
+        RenderHome()
+    end)
+    ui.recapButton = W.Tab(home, L["Recap"], TEX.RECAP, nil, HOME_BUTTON_HEIGHT)
+    ui.recapButton:SetPoint("RIGHT", ui.hideButton, "LEFT", -HOME_BUTTON_GAP, 0)
+    W.FitTab(ui.recapButton)
+    W.Tooltip(ui.recapButton, L["Recap"], L["What happened in your dungeon runs: time, experience, loot."])
+    ui.recapButton:SetScript("OnClick", function() ns.Recap.Open() end)
+    ui.hideHint = home:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    ui.hideHint:SetPoint("BOTTOMLEFT", SIDE_MARGIN + 4, SIDE_MARGIN + 4)
+    ui.hideHint:SetTextColor(C.MUTED[1], C.MUTED[2], C.MUTED[3])
+    ui.hideHint:SetText(ns.IconString(TEX.HIDE, HIDE_HINT_SIZE) .. " "
+        .. L["Click the dungeons to hide or show them, then press Done."])
+    ui.hideHint:Hide()
 end
 
 local function CreateHome()
@@ -963,12 +1077,17 @@ local function CreateHome()
     end
     levelTag = home:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     levelTag:SetPoint("TOPRIGHT", -24, -54)
+    CreateHomeButtons()
     local gridScroll = CreateFrame("ScrollFrame", "ForeverDungeonMapJournalGrid", home, "UIPanelScrollFrameTemplate")
     gridScroll:SetPoint("TOPLEFT", SIDE_MARGIN, -HEADER_TOP)
     gridScroll:SetPoint("BOTTOMRIGHT", -32, SIDE_MARGIN + FOOTER_HEIGHT)
     grid = CreateFrame("Frame", nil, gridScroll)
     grid:SetSize(CARD_COLUMNS * CARD_WIDTH + CARD_GAP_X, 10)
     gridScroll:SetScrollChild(grid)
+    ui.homeEmpty = home:CreateFontString(nil, "OVERLAY", ns.Font("disableLarge"))
+    ui.homeEmpty:SetPoint("TOP", gridScroll, "TOP", 0, -40)
+    ui.homeEmpty:SetText(L["Every dungeon is hidden. Press the Hidden button to bring some back."])
+    ui.homeEmpty:Hide()
 end
 
 local function MatchesQuery(text) return text:lower():find(query, 1, true) ~= nil end
@@ -1127,11 +1246,13 @@ end
 local function Create()
     if frame then return end
     frame = W.Window("ForeverDungeonMapJournal", WINDOW_WIDTH, WINDOW_HEIGHT, "Dungeon Journal")
-    frame:SetPoint("CENTER", 0, 10)
+    W.PlaceWindow(frame, "CENTER", 0, 10)
     frame:SetFrameStrata("DIALOG")
     frame:SetToplevel(true)
     frame:Hide()
     tinsert(UISpecialFrames, "ForeverDungeonMapJournal")
+    -- a closed journal reopens on the plain list
+    frame:SetScript("OnHide", function() hideMode = false end)
     W.MarkOwned(frame)
     W.SetupTooltipBacking()
     CreateSearch()

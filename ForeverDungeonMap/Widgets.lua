@@ -19,11 +19,15 @@ ns.W = W
 local BARE_UNKNOWN_SCALE = 0.7
 -- gold frame and elite dragon of a boss without a portrait, relative to the portrait size
 local UNKNOWN_FRAME_SCALE, ELITE_ICON_SCALE = 1.12, 0.5
+-- round badge: the dark disc inside the gold ring, and the icon's inset, relative to the size
+local BADGE_DISC_INSET, BADGE_ICON_INSET = 0.14, 0.24
 local RARE_ELITE_RANK = 2
 local TAB_WIDTH, TAB_HEIGHT = 108, 30
 -- rows of a choice menu (slot filter, map floor) and the menu's inner padding
 local MENU_ROW_HEIGHT, MENU_INSET, MENU_GAP = 22, 4, 2
 local ACTION_WIDTH, ACTION_HEIGHT = 112, 22
+-- width a tab needs besides its label: with an icon (8 + 20 + 6 + 6), or the padding of a plain one
+local TAB_ICON_ROOM, TAB_TEXT_ROOM = 40, 20
 
 -- Looks of hoverable frames (spec 0.4).
 local STYLES = {
@@ -141,6 +145,27 @@ function W.IconButton(parent, size, texture, iconInset)
     return button
 end
 
+-- Round icon button: the icon on a dark disc inside the gold ring, the ring lights up under the
+-- mouse (favourite star, hide toggle). badge.hovered is true while the mouse is on it.
+function W.RoundBadge(parent, size, texture)
+    local badge = CreateFrame("Button", nil, parent)
+    badge:SetSize(size, size)
+    badge.Disc = badge:CreateTexture(nil, "BACKGROUND")
+    W.Inset(badge.Disc, size * BADGE_DISC_INSET)
+    badge.Disc:SetColorTexture(C.BADGE_BG[1], C.BADGE_BG[2], C.BADGE_BG[3], C.BADGE_BG[4])
+    W.Mask(badge, badge.Disc)
+    badge.Icon = badge:CreateTexture(nil, "ARTWORK")
+    W.Inset(badge.Icon, size * BADGE_ICON_INSET)
+    badge.Icon:SetTexture(texture)
+    badge.Ring = badge:CreateTexture(nil, "OVERLAY")
+    badge.Ring:SetAllPoints()
+    badge.Ring:SetTexture(TEX.GOLD_RING)
+    badge:SetHighlightTexture(TEX.RING_HOVER, "ADD")
+    badge:HookScript("OnEnter", function(self) self.hovered = true end)
+    badge:HookScript("OnLeave", function(self) self.hovered = false end)
+    return badge
+end
+
 -- Mark a frame tree as ours: tooltips opened from it get the solid dark backing.
 function W.MarkOwned(frame)
     frame.foreverDungeonMapOwned = true
@@ -230,23 +255,96 @@ function W.SetHeaderArt(art, instanceID)
     end
 end
 
-local function AddDragHandle(window)
-    local handle = CreateFrame("Frame", nil, window)
-    handle:SetPoint("TOPLEFT", 12, -8)
-    handle:SetPoint("TOPRIGHT", -40, -8)
-    handle:SetHeight(36)
-    -- on the window's own level: the search box and buttons in this strip stay above it and
-    -- get their clicks (it covered the journal's search box, which could not be clicked into)
-    handle:SetFrameLevel(window:GetFrameLevel())
-    handle:EnableMouse(true)
-    handle:RegisterForDrag("LeftButton")
-    handle:SetScript("OnDragStart", function() window:StartMoving() end)
-    handle:SetScript("OnDragStop", function() window:StopMovingOrSizing() end)
-    window.dragHandle = handle
+-- Header band of a dungeon: art strip, round icon, its name in the title font and a sub-line
+-- (head.Art, head.Icon, head.Name, head.Sub); W.SetDungeonHeader fills it.
+function W.DungeonHeader(parent, iconSize, iconLeft)
+    local head = W.Panel(parent)
+    head.Art = W.CreateHeaderArt(head)
+    head.Icon = W.CreateRoundIcon(head, iconSize)
+    head.Icon:SetPoint("LEFT", iconLeft, 0)
+    head.Name = head:CreateFontString(nil, "OVERLAY", ns.Font("title"))
+    head.Name:SetPoint("TOPLEFT", iconLeft + iconSize + 8, -12)
+    head.Name:SetTextColor(C.GOLD[1], C.GOLD[2], C.GOLD[3])
+    head.Name:SetWordWrap(false)
+    head.Sub = head:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    head.Sub:SetPoint("TOPLEFT", head.Name, "BOTTOMLEFT", 0, -4)
+    return head
 end
 
--- Gilded dialog window: gold border, dark rock background, title ribbon, close button,
--- dragged by its top strip only.
+function W.SetDungeonHeader(head, instanceID, name, subText)
+    W.SetHeaderArt(head.Art, instanceID)
+    W.SetDungeonIcon(head.Icon, instanceID)
+    head.Name:SetText(name)
+    head.Sub:SetText(subText or "")
+end
+
+-- windows made movable, for W.ResetWindowPositions
+local movableWindows = {}
+
+-- Put a window where the player dragged it; false when it was never moved.
+function W.RestorePosition(window)
+    local position = ns.db.windowPositions[window.positionKey]
+    if not position then return false end
+    window:ClearAllPoints()
+    window:SetPoint(position[1], UIParent, position[2], position[3], position[4])
+    return true
+end
+
+-- The window's spot on the screen (point, x, y) unless the player moved it somewhere else.
+function W.PlaceWindow(window, point, x, y)
+    window.defaultPlace = { point, x or 0, y or 0 }
+    if W.RestorePosition(window) then return end
+    window:ClearAllPoints()
+    window:SetPoint(point, x or 0, y or 0)
+end
+
+local function OnWindowDragStart(window)
+    window.isMoving = not window.canMove or window.canMove()
+    if window.isMoving then window:StartMoving() end
+end
+
+-- A drag that was refused left the window on its anchor: there is no new spot to keep.
+local function OnWindowDragStop(window)
+    if not window.isMoving then return end
+    window.isMoving = false
+    window:StopMovingOrSizing()
+    -- the spot is kept in our saved settings, not in the client's own layout cache
+    window:SetUserPlaced(false)
+    local point, _, relativePoint, x, y = window:GetPoint(1)
+    ns.db.windowPositions[window.positionKey] = { point, relativePoint, x, y }
+end
+
+-- Drag the window by any part of it that is not a control; the spot is kept across sessions
+-- under `key` (ns.db.windowPositions). canMove (optional): a drag is refused while it returns false.
+function W.MakeMovable(window, key, canMove)
+    window.positionKey = key
+    window.canMove = canMove
+    window:SetMovable(true)
+    window:EnableMouse(true)
+    window:RegisterForDrag("LeftButton")
+    window:SetScript("OnDragStart", OnWindowDragStart)
+    window:SetScript("OnDragStop", OnWindowDragStop)
+    movableWindows[#movableWindows + 1] = window
+end
+
+-- Dragging `handle`, a frame inside a movable window, moves the window.
+function W.AddDragHandle(window, handle)
+    handle:EnableMouse(true)
+    handle:RegisterForDrag("LeftButton")
+    handle:SetScript("OnDragStart", function() OnWindowDragStart(window) end)
+    handle:SetScript("OnDragStop", function() OnWindowDragStop(window) end)
+end
+
+-- Forget every dragged spot; windows with a fixed default spot go back to it at once.
+function W.ResetWindowPositions()
+    wipe(ns.db.windowPositions)
+    for _, window in ipairs(movableWindows) do
+        if window.defaultPlace then W.PlaceWindow(window, unpack(window.defaultPlace)) end
+    end
+end
+
+-- Gilded dialog window: gold border, dark rock background, title ribbon, close button;
+-- movable, its spot kept under its name.
 function W.Window(name, width, height, title)
     local window = CreateFrame("Frame", name, UIParent, "BackdropTemplate")
     window:SetSize(width, height)
@@ -270,9 +368,7 @@ function W.Window(name, width, height, title)
     -- our windows are not UI panels: a plain Hide keeps the secure panel manager out of it
     window.CloseButton:SetScript("OnClick", function(button) button:GetParent():Hide() end)
     window:SetClampedToScreen(true)
-    window:SetMovable(true)
-    window:EnableMouse(true)
-    AddDragHandle(window)
+    W.MakeMovable(window, name)
     return window
 end
 
@@ -323,7 +419,7 @@ end
 -- Window with one read-only text box (window.Box, window.EditBox); Escape closes it.
 function W.TextWindow(name, width, height, title)
     local window = W.Window(name, width, height, title)
-    window:SetPoint("CENTER")
+    W.PlaceWindow(window, "CENTER")
     -- one layer above the journal (DIALOG, raised on every click), or it opens hidden behind it
     window:SetFrameStrata("FULLSCREEN_DIALOG")
     window:SetToplevel(true)
@@ -404,6 +500,11 @@ function W.Tab(parent, text, icon, width, height)
     tab.OnVisual = function(self, _, selected) self.Underline:SetShown(selected) end
     W.Hoverable(tab, "row")
     return tab
+end
+
+-- Make a tab as wide as its label (plus room for its icon).
+function W.FitTab(tab)
+    tab:SetWidth(tab.Label:GetStringWidth() + (tab.Icon and TAB_ICON_ROOM or TAB_TEXT_ROOM))
 end
 
 -- Icon-only tab (no room for the label): the icon centred; false puts icon and label back.
@@ -552,12 +653,13 @@ local function AddUnknownMark(portrait, size)
     portrait.Elite:Hide()
 end
 
--- Silver dragon for rare elites, gold for other elites and bosses, nil when not known.
-local function EliteAtlas(boss, instanceID)
+-- Silver dragon for rare elites, gold for other elites and bosses. A rank the data does not
+-- know: gold when `goldWhenUnknown` (every dungeon boss is elite at least), else nil.
+local function EliteAtlas(boss, instanceID, goldWhenUnknown)
     if boss.rare then return TEX.ELITE_ATLAS.silver end
     local level = instanceID and ns.BossLevel and ns.BossLevel(instanceID, boss.name)
     local rank = level and level[3]
-    if not rank then return nil end
+    if not rank then return goldWhenUnknown and TEX.ELITE_ATLAS.gold or nil end
     return rank == RARE_ELITE_RANK and TEX.ELITE_ATLAS.silver or TEX.ELITE_ATLAS.gold
 end
 
@@ -568,19 +670,23 @@ function W.SetAtlasIfPresent(texture, atlas)
     return true
 end
 
--- A boss without a creature portrait: gold frame, "?" and the elite dragon.
-local function SetUnknownLook(portrait, boss, unknown, instanceID)
+-- A boss without a creature portrait gets the gold frame and "?". The elite dragon sits on it,
+-- and on every portrait made with { eliteDragon = true } (map pins); grey once the boss is dead.
+local function SetEliteLook(portrait, boss, unknown, instanceID, killed)
     portrait.UnknownFrame:SetShown(unknown)
-    local hasDragon = unknown and W.SetAtlasIfPresent(portrait.Elite, EliteAtlas(boss, instanceID))
+    local wanted = unknown or portrait.alwaysElite
+    local hasDragon = wanted and W.SetAtlasIfPresent(portrait.Elite, EliteAtlas(boss, instanceID, portrait.alwaysElite))
     portrait.Elite:SetShown(hasDragon and true or false)
+    portrait.Elite:SetDesaturated(killed and true or false)
 end
 
 -- Round boss portrait without a ring (its art has a dark fill that hides the portrait).
--- options: { levelBadge = size, orderBadge = true, mouse = true }
+-- options: { levelBadge = size, orderBadge = true, mouse = true, eliteDragon = true }
 function W.CreatePortrait(parent, size, options)
     options = options or {}
     local portrait = CreateFrame("Button", nil, parent)
     portrait:SetSize(size, size)
+    portrait.alwaysElite = options.eliteDragon and true or false
     portrait.Portrait = portrait:CreateTexture(nil, "ARTWORK")
     portrait.Portrait:SetAllPoints()
     W.Mask(portrait, portrait.Portrait)
@@ -633,7 +739,7 @@ function W.SetPortrait(portrait, boss, killed, instanceID)
         portrait.Portrait:SetTexCoord(unpack(TEX.BOSS_DEFAULT_COORDS))
         portrait.Unknown:Show()
     end
-    SetUnknownLook(portrait, boss, not ok, instanceID)
+    SetEliteLook(portrait, boss, not ok, instanceID, killed)
     portrait.Portrait:SetDesaturated(killed and true or false)
     local shade = killed and 0.55 or 1
     portrait.Portrait:SetVertexColor(shade, shade, shade)

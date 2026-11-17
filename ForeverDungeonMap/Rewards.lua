@@ -39,12 +39,8 @@ end
 
 -- A positive number from a game API, or nil (missing API, error, secret value, zero).
 local function PositiveNumber(api, ...)
-    if type(api) ~= "function" then return nil end
-    local ok, value = pcall(api, ...)
-    if not ok or type(value) ~= "number" then return nil end
-    local isSecret = _G.issecretvalue
-    if isSecret and isSecret(value) then return nil end
-    return value > 0 and value or nil
+    local value = ns.SafeNumber(api, ...)
+    return value and value > 0 and value or nil
 end
 
 local function LearnedRewards()
