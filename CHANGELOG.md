@@ -3,7 +3,7 @@
 All notable changes to ForeverDungeonMap. Versions follow the `## Version` of the .toc;
 releases are tagged `vX.Y.Z`.
 
-## 0.7.3 (unreleased)
+## 0.7.3 (2026-11-17)
 
 ### Changed
 - Elite bosses on the dungeon maps have a frame around their portrait instead of the dragon icon
