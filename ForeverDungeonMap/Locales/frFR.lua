@@ -14,6 +14,7 @@ ns.AddTranslations("frFR", {
     ["Done"] = "Terminé",
     ["Click the dungeons to hide or show them, then press Done."] =
         "Cliquez sur les donjons pour les masquer ou les afficher, puis appuyez sur Terminé.",
+    ["Where it stands on this map is not known yet."] = "Sa position sur cette carte n'est pas encore connue.",
     ["Live view only inside dungeons"] = "Vue en direct uniquement dans les donjons",
     ["Open the live view only while you are inside a dungeon or raid."] =
         "N'ouvre la vue en direct que lorsque vous êtes dans un donjon ou un raid.",

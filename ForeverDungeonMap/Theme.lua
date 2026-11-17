@@ -54,6 +54,9 @@ local C = {
     TOOLTIP_TEXT = { 0.75, 0.75, 0.75, 1 },
     BLACK       = { 0, 0, 0, 1 },
     PILL_EDGE   = { 1.00, 0.78, 0.30, 1 },
+    -- tints of the desaturated gold ring around elite portraits: rare elites, defeated bosses
+    ELITE_FRAME_SILVER = { 0.95, 0.97, 1.00, 1 },
+    ELITE_FRAME_KILLED = { 0.45, 0.45, 0.45, 1 },
 }
 ns.C = C
 
@@ -173,8 +176,6 @@ ns.TEX.FULL_COORDS = { 0, 1, 0, 1 }
 ns.TEX.PARCHMENT_COORDS = { 0, 0.5859375, 0, 0.65625 }
 ns.TEX.SQUARE_CROP_COORDS = { 0.25, 0.75, 0, 1 }
 ns.TEX.DUNGEON_ATLAS = "Dungeon"
--- elite dragon of a boss pin without a portrait: rare elites silver, others gold
-ns.TEX.ELITE_ATLAS = { gold = "nameplates-icon-elite-gold", silver = "nameplates-icon-elite-silver" }
 ns.TEX.EXPERIENCE_COORDS = { 0.08, 0.92, 0.08, 0.92 }
 -- Class icon crops of UI-CharacterCreate-Classes, used when CLASS_ICON_TCOORDS is missing.
 ns.TEX.CLASS_COORDS = {

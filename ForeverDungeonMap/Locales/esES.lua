@@ -14,6 +14,7 @@ ns.AddTranslations({ "esES", "esMX" }, {
     ["Done"] = "Hecho",
     ["Click the dungeons to hide or show them, then press Done."] =
         "Haz clic en las mazmorras para ocultarlas o mostrarlas y luego pulsa Hecho.",
+    ["Where it stands on this map is not known yet."] = "Aún no se sabe dónde está en este mapa.",
     ["Live view only inside dungeons"] = "Vista en directo solo en mazmorras",
     ["Open the live view only while you are inside a dungeon or raid."] =
         "Abre la vista en directo solo mientras estés en una mazmorra o banda.",

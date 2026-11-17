@@ -164,22 +164,53 @@ if hideButton then
         and not Mock.Shown(grid._children)[1].HiddenVeil:IsShown())
 end
 
--- the elite dragon on every boss pin of the dungeon map: silver for rare elites, gold for the others
+-- the elite frame around every boss pin of the dungeon map: silver for rare elites, gold for the
+-- others; nothing is drawn over the portrait
 Step("journal map tab of Wailing Caverns", function() ns.Journal:OpenDungeon(43, "map") end)
 local journalMap = ns.Journal.map
 if journalMap and journalMap.numPins then
     local gold, silver, without = 0, 0, {}
     for i = 1, journalMap.numPins do
         local pin = journalMap.pins[i]
-        local atlas = pin.Elite:IsShown() and pin.Elite:GetAtlas()
-        if atlas == ns.TEX.ELITE_ATLAS.gold then gold = gold + 1
-        elseif atlas == ns.TEX.ELITE_ATLAS.silver then silver = silver + 1
-        else without[#without + 1] = pin.boss.name end
-        if pin.boss.rare then Check("rare " .. pin.boss.name .. ": silver dragon", atlas == ns.TEX.ELITE_ATLAS.silver, tostring(atlas)) end
+        local frame = pin.EliteFrame
+        if not frame:IsShown() then without[#without + 1] = pin.boss.name
+        elseif frame:IsDesaturated() then silver = silver + 1
+        else gold = gold + 1 end
+        if pin.boss.rare then Check("rare " .. pin.boss.name .. ": silver frame", frame:IsShown() and frame:IsDesaturated()) end
     end
-    Check("every boss pin has an elite dragon", #without == 0 and gold > 0, table.concat(without, ", "))
+    Check("every boss pin has the elite frame", #without == 0 and gold > 0, table.concat(without, ", "))
     Check("the rare elite has the silver one", silver >= 1, silver)
+    Check("no elite icon over the portrait", journalMap.pins[1].Elite == nil)
 end
+
+-- event bosses have their spots (Sunken Temple's dragons, Scholomance's summons...)
+for _, wanted in ipairs({ { 109, "Weaver" }, { 109, "Dreamscythe" }, { 109, "Atal'alarion" }, { 289, "Kormok" },
+        { 289, "Darkmaster Gandling" }, { 129, "Tuten'kash" }, { 229, "Warchief Rend Blackhand" }, { 329, "Ezra Grimm" } }) do
+    Check(("%d %s has a map spot"):format(wanted[1], wanted[2]), ns.GetBossPos(wanted[1], wanted[2]) ~= nil)
+end
+
+-- a new Forever dungeon whose spots no source has: every boss in the row at the map's bottom
+Step("journal map tab of Alcaz Prison", function() ns.Journal:OpenDungeon(2994, "map") end)
+local alcazMap = ns.Journal.map
+local alcazBosses = ns.BOSSES[2994] or {}
+Check("Alcaz Prison: every boss has a pin", alcazMap.numPins == #alcazBosses and #alcazBosses == 5, alcazMap.numPins)
+local firstPin, secondPin = alcazMap.pins[1], alcazMap.pins[2]
+local _, _, _, firstX, firstY = firstPin:GetPoint(1)
+local _, _, _, secondX, secondY = secondPin:GetPoint(1)
+Check("Alcaz Prison: the pins stand in one row, in boss order", firstY == secondY and secondX > firstX
+    and firstPin.index == 1 and secondPin.index == 2)
+Step("hover an Alcaz Prison pin", function() Mock.Enter(firstPin) end)
+Check("its tooltip says the spot is not known yet", table.concat(GameTooltip._lines, " "):find("not known yet", 1, true) ~= nil,
+    table.concat(GameTooltip._lines, " | "))
+Step("leave the pin", function() Mock.Leave(firstPin) end)
+Check("Alcaz Prison bosses carry their creature IDs", alcazBosses[1] and alcazBosses[1].npcID == 255391)
+local withLoot = 0
+for _, boss in ipairs(alcazBosses) do if boss.loot and #boss.loot > 0 then withLoot = withLoot + 1 end end
+Check("Alcaz Prison: every boss has its loot", withLoot == #alcazBosses, withLoot)
+Check("Alcaz Prison stays coming soon while it is not out", ns.DUNGEONS[2994] and ns.DUNGEONS[2994].comingSoon == true)
+local kingOp
+for _, boss in ipairs(ns.BOSSES[3001] or {}) do if boss.name == "King Op" then kingOp = boss end end
+Check("King Op (rare elite) is marked rare: silver frame", kingOp and kingOp.rare == true)
 
 -- tooltip backing
 Step("ShowHome", function() ns.Journal:ShowHome() end)

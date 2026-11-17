@@ -213,10 +213,12 @@ for _, id in ipairs(sortedIDs(ns.DUNGEONS)) do
     if floors[1] and not floors[1].overview then
         for _, b in ipairs(bosses) do
             local pos = ns.GetBossPos(id, b.name)
-            if pos and (pos.floor or 1) == floors[1].index then want = want + 1 end
+            -- a boss without a known spot sits in the row at the map's bottom, on every floor
+            if not pos or (pos.floor or 1) == floors[1].index then want = want + 1 end
         end
     end
-    Check(d.name .. ": map tab boss pins", (jm.numPins or 0) == want, ("%s pins, %d expected"):format(tostring(jm.numPins), want))
+    Check(d.name .. ": map tab boss pins (placed + the row of unknown spots)", (jm.numPins or 0) == want,
+        ("%s pins, %d expected"):format(tostring(jm.numPins), want))
     M.Advance(1)
 end
 Check("no Lua errors while rendering every journal page", #M.report.errors == errorsBefore,
@@ -535,17 +537,16 @@ Check("dungeon icons have no ring", ns.W.CreateRoundIcon(UIParent, 40).Ring == n
 local framesMatchUnknown = true
 for i = 1, jm.numPins do
     local each = jm.pins[i]
-    if each.UnknownFrame:IsShown() ~= each.Unknown:IsShown() then framesMatchUnknown = false end
+    if not each.EliteFrame:IsShown() then framesMatchUnknown = false end
 end
-Check("only pins without a portrait get the gold frame around their '?'", framesMatchUnknown)
+Check("every map pin has the elite frame (with or without a portrait)", framesMatchUnknown)
 local unknownPin
 Step("portrait-less rare boss on a pin", function()
     unknownPin = ns.W.CreatePortrait(UIParent, 40)
     ns.W.SetPortrait(unknownPin, { name = "Nobody", rare = true }, false, 43)
 end)
-Check("portrait-less rare pin: framed '?' with a silver dragon", unknownPin.Unknown:IsShown()
-    and unknownPin.UnknownFrame:IsShown() and unknownPin.Elite:IsShown()
-    and unknownPin.Elite:GetAtlas() == "nameplates-icon-elite-silver", unknownPin.Elite:GetAtlas())
+Check("portrait-less rare pin: '?' in a silver frame", unknownPin.Unknown:IsShown()
+    and unknownPin.EliteFrame:IsShown() and unknownPin.EliteFrame:IsDesaturated())
 if pin then
     Step("hover map pin", function() M.Enter(pin) end)
     Check("map pin tooltip: name, boss i of n, loot", GameTooltip:NumLines() >= 3 and (GameTooltip._lines[2] or ""):find("Boss 1 of", 1, true) ~= nil,

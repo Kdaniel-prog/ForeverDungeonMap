@@ -40,10 +40,29 @@ local function BossesFromForever(foreverDungeon)
     return bosses
 end
 
--- Display and encounter IDs for bosses Generated.lua lists without them.
-local function CompleteBosses(bosses, foreverDungeon)
+-- Rank of a rare elite in Data/ForeverBosses.lua.
+local RARE_ELITE_RANK = 2
+
+-- What Data/ForeverBosses.lua knows of a dungeon that is not out yet ({} when nothing).
+local function ComingDungeon(instanceID)
+    return TableOrEmpty(TableOrEmpty(ns.FOREVER_BOSSES)[instanceID])
+end
+
+-- Creature ID and loot from Data/ForeverBosses.lua; a rare elite is marked rare (silver frame).
+local function AddComingBossFacts(boss, facts)
+    if type(facts) ~= "table" then return end
+    boss.npcID = boss.npcID or facts.npcID
+    if facts.rank == RARE_ELITE_RANK then boss.rare = true end
+    if not (boss.loot and #boss.loot > 0) and type(facts.loot) == "table" then boss.loot = facts.loot end
+end
+
+-- Display, encounter and creature IDs for bosses Generated.lua lists without them, and what is
+-- known of the bosses of the dungeons that are not out yet.
+local function CompleteBosses(instanceID, bosses, foreverDungeon)
+    local comingBosses = TableOrEmpty(ComingDungeon(instanceID).bosses)
     for _, boss in ipairs(bosses) do
         boss.display = boss.display or bossDisplay[boss.name]
+        AddComingBossFacts(boss, comingBosses[boss.name])
         for _, foreverBoss in ipairs(TableOrEmpty(foreverDungeon.bosses)) do
             if not boss.encounter and (foreverBoss.name == boss.name or foreverBoss.npcName == boss.name) then
                 boss.encounter = foreverBoss.encounter
@@ -73,14 +92,18 @@ local function MergeDungeon(instanceID, foreverDungeon)
     end
     if type(foreverDungeon.floors) == "table" and #foreverDungeon.floors > 0 then dungeon.tileFloors = foreverDungeon.floors end
     if #(ns.BOSSES[instanceID] or {}) == 0 then ns.BOSSES[instanceID] = BossesFromForever(foreverDungeon) end
-    CompleteBosses(ns.BOSSES[instanceID], foreverDungeon)
+    CompleteBosses(instanceID, ns.BOSSES[instanceID], foreverDungeon)
     if not ns.ART[instanceID] and foreverDungeon.loading then
         local screen = foreverDungeon.loading
         ns.ART[instanceID] = { card = screen, bg = screen, icon = screen, cardCoords = LOADING_SCREEN_ART.cardCoords,
             bgCoords = LOADING_SCREEN_ART.bgCoords, iconCoords = LOADING_SCREEN_ART.iconCoords }
     end
-    -- "coming soon": neither quests nor loot are known yet
-    if dungeon.comingSoon then
+    -- "coming soon": the dungeon is not out (Data/ForeverBosses.lua), else neither quests nor
+    -- loot are known yet
+    local comingSoon = ComingDungeon(instanceID).comingSoon
+    if comingSoon ~= nil then
+        dungeon.comingSoon = comingSoon
+    elseif dungeon.comingSoon then
         dungeon.comingSoon = not HasLoot(ns.BOSSES[instanceID]) and #(ns.QUESTS[instanceID] or {}) == 0
     end
 end

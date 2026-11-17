@@ -38,6 +38,8 @@ local allMaps = {}
 -- Boss pin scale from the setting (0.6 .. 1.6).
 -- pins closer than this many pin widths are pushed apart; rounds of pushing per layout
 local PIN_SPACING, SPREAD_ROUNDS = 0.9, 12
+-- the row of bosses whose spot no source has: pin step and gap from the boss icon box, in pin widths
+local UNPLACED_SPACING, UNPLACED_MARGIN = 1.15, 0.8
 
 -- Push points { x, y } apart until no two are closer than `distance` (the first `fixedCount`
 -- points stay put). Points on the same spot leave in a fixed direction per index.
@@ -294,6 +296,9 @@ function MapCanvas:ShowBossTooltip(owner, boss, index)
     if ns.IsKilled(instanceID, boss.name) then
         GameTooltip:AddLine(ns.IconString(TEX.CROSS, DEFEATED_ICON_SIZE) .. " Defeated", C.DEFEATED[1], C.DEFEATED[2], C.DEFEATED[3])
     end
+    if not ns.GetBossPos(instanceID, boss.name) then
+        GameTooltip:AddLine(L["Where it stands on this map is not known yet."], C.MUTED[1], C.MUTED[2], C.MUTED[3], true)
+    end
     AddLootLines(boss.loot or {})
     GameTooltip:AddLine("Click: loot & quests", C.HINT[1], C.HINT[2], C.HINT[3])
     GameTooltip:Show()
@@ -302,7 +307,7 @@ end
 -- Boss pin number i (made on first use): click opens the boss, right-click is "back".
 function MapCanvas:Pin(i)
     if self.pins[i] then return self.pins[i] end
-    local pin = W.CreatePortrait(self.area, PIN_SIZE, { orderBadge = true, mouse = true, eliteDragon = true })
+    local pin = W.CreatePortrait(self.area, PIN_SIZE, { orderBadge = true, mouse = true, eliteFrame = true })
     pin:RegisterForClicks("LeftButtonUp", "RightButtonUp")
     pin:SetScript("OnClick", function(clicked, button)
         if button == "RightButton" then
@@ -345,11 +350,33 @@ function MapCanvas:BossSpotsOnFloor(floor)
     return spots
 end
 
--- Boss pins of the current floor (none on overview maps), pushed apart so none hides another.
+-- Bosses no source has a spot for (new WoW Forever dungeons): { boss, index, x, y } in a row
+-- along the bottom of the map area, right of the boss icon box, on every floor, so the map still
+-- lists them all.
+function MapCanvas:UnplacedBossSpots(scale)
+    local spots = {}
+    local width, height = self.area:GetSize()
+    local pinWidth = PIN_SIZE * scale
+    local step = pinWidth * UNPLACED_SPACING
+    local left = -width / 2 + 2 * SCALE_BOX_PADDING + SCALE_BOX_WIDTH + pinWidth * UNPLACED_MARGIN
+    local bottom = -height / 2 + SCALE_BOX_PADDING + math.max(SCALE_BOX_HEIGHT, pinWidth) / 2
+    for index, boss in ipairs(self:Bosses()) do
+        if not ns.GetBossPos(self.state.instanceID, boss.name) then
+            spots[#spots + 1] = { boss = boss, index = index, x = left + #spots * step, y = bottom }
+        end
+    end
+    return spots
+end
+
+-- Boss pins of the current floor (none on overview maps), pushed apart so none hides another;
+-- bosses without a known spot in a row at the bottom.
 function MapCanvas:LayoutBossPins(floor)
     local spots, scale = {}, PinScale()
     if floor and self.state.fit and not floor.overview then spots = self:BossSpotsOnFloor(floor) end
     MapCanvas.SpreadApart(spots, PIN_SIZE * scale * PIN_SPACING)
+    if floor and self.state.fit and not floor.overview then
+        for _, spot in ipairs(self:UnplacedBossSpots(scale)) do spots[#spots + 1] = spot end
+    end
     for count, spot in ipairs(spots) do self:PlacePin(count, spot.boss, spot.index, spot.x, spot.y, scale) end
     for i = #spots + 1, #self.pins do self.pins[i]:Hide() end
     self.numPins = #spots

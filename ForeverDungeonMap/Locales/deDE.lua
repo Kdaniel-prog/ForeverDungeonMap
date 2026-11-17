@@ -14,6 +14,7 @@ ns.AddTranslations("deDE", {
     ["Done"] = "Fertig",
     ["Click the dungeons to hide or show them, then press Done."] =
         "Klicke auf die Dungeons, um sie aus- oder einzublenden, und drücke dann auf Fertig.",
+    ["Where it stands on this map is not known yet."] = "Wo er auf dieser Karte steht, ist noch nicht bekannt.",
     ["Live view only inside dungeons"] = "Live-Ansicht nur in Dungeons",
     ["Open the live view only while you are inside a dungeon or raid."] =
         "Öffnet die Live-Ansicht nur, solange du in einem Dungeon oder Schlachtzug bist.",

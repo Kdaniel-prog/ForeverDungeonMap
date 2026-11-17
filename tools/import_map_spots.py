@@ -8,7 +8,10 @@ Boss spots come first from Blizzard's Encounter Journal (JournalEncounter.Map_0/
 retail build). Where the journal has no spot, and for every entrance and quest giver, the
 world position comes from the CMaNGOS classic-db (GPLv3, https://github.com/cmangos/classic-db):
 creature / gameobject spawns (a rare's most central spawn), script summons of event bosses,
-areatrigger_teleport targets and quest relations. A world
+areatrigger_teleport targets and quest relations. Event bosses with none of these stand at the
+spawn of what calls them (EVENT_SOURCES: idol, gong, brazier), at a summon point of the CMaNGOS
+core scripts (SCRIPT_SUMMON_SPOTS, mangos-classic, facts only) or at the end of their path
+(creature_movement_template: Sunken Temple's dragons fly in). A world
 position becomes a 0..1 spot on a floor's art with Blizzard's UiMapAssignment table (the
 same art as the WoW Forever client for the unchanged classic dungeons).
 
@@ -135,9 +138,9 @@ def read_generated(path):
         if boss and instance is not None:
             encounter = re.search(r"encounter = (\d+)", boss.group(2))
             npc = re.search(r"npcID = (\d+)", boss.group(2))
-            bosses[instance].append((boss.group(1).replace('\\"', '"'),
-                                     int(encounter.group(1)) if encounter else None,
-                                     int(npc.group(1)) if npc else None))
+            name = boss.group(1).replace('\\"', '"')
+            bosses[instance].append((name, int(encounter.group(1)) if encounter else None,
+                                     int(npc.group(1)) if npc else BOSS_NPC_IDS.get(name)))
     return bosses, quest_ids(text)
 
 
@@ -160,9 +163,34 @@ SQL_TABLES = ("creature", "creature_spawn_entry", "gameobject", "gameobject_spaw
 SCRIPT_TABLES = tuple(f"dbscripts_on_{source}" for source in (
     "creature_death", "creature_movement", "event", "go_template_use", "go_use", "gossip",
     "quest_end", "quest_start", "relay", "spell"))
-SQL_TABLES += SCRIPT_TABLES
+SQL_TABLES += SCRIPT_TABLES + ("creature_movement_template",)
 # dbscripts command that summons a creature (datalong = entry) at x, y, z
 SCRIPT_SUMMON_CREATURE = "10"
+
+# Event bosses with neither a spawn nor a script summon: the spawn(s) in the dump of what calls
+# them (several spawns: their centre). Names as in Generated.lua.
+EVENT_SOURCES = {
+    "Atal'alarion": ("object", 148838),            # Idol of Hakkar
+    "Tuten'kash": ("object", 148917),              # the Gong
+    "Plaguemaw the Rotting": ("object", 152097),   # Belnistrasz's Brazier (end of the ritual)
+    "Lord Valthalak": ("object", 181050),          # Lord Valthalak Brazier Spell Focus
+    "Kormok": ("object", 181049),                  # Kormok Brazier Spell Focus
+    "Lord Hel'nurath": ("object", 179681),         # the ring of Dreadsteed Portals
+    "The Vault": ("object", 161495),               # Secret Safe
+}
+# Creature IDs of bosses Generated.lua lists by encounter only (the dump's names differ).
+BOSS_NPC_IDS = {
+    "Kirtonos": 10506,             # Kirtonos the Herald
+    "Ras Frostwhisperer": 10508,   # Ras Frostwhisper
+    "Ezra Grimm": 11058,           # Fras Siabi in the classic dump
+}
+# Summon points written in the CMaNGOS core scripts (mangos-classic, GPLv2+,
+# src/game/AI/ScriptDevAI/scripts/...), world x, y, z of the boss's map.
+SCRIPT_SUMMON_SPOTS = {
+    "Warchief Rend Blackhand": (161.01, -443.73, 121.97),  # blackrock_spire.h, Rend summon position
+    "Baron Aquanis": (-782.21, -63.26, -42.43),            # blackfathom_deeps.h, afAquanisPos
+    "Darkmaster Gandling": (180.771, -5.4286, 75.5702),    # scholomance.h, aGandlingSpawnLocs
+}
 
 
 # The dump's INSERT rows of SQL_TABLES as dicts keyed by column name.
@@ -213,6 +241,26 @@ def summon_points(db):
                 points.setdefault(int(row["datalong"]), []).append(
                     (float(row["x"]), float(row["y"]), float(row["z"])))
     return points
+
+
+# Where a scripted boss's path ends (it flies or walks in and fights there): {npcID: (x, y, z)}.
+def path_ends(db):
+    ends = {}
+    for row in db["creature_movement_template"]:
+        entry, point = int(row["Entry"]), int(row["Point"])
+        if entry not in ends or point > ends[entry][0]:
+            ends[entry] = (point, (float(row["PositionX"]), float(row["PositionY"]), float(row["PositionZ"])))
+    return {entry: end for entry, (_, end) in ends.items()}
+
+
+# The world spot of an event boss without spawn: its caller's spawns (centre), else a summon point
+# from the core scripts, else the end of its path.
+def event_spot(points, ends, instance, name, npc):
+    source = EVENT_SOURCES.get(name)
+    inside = [p[1:] for p in points.get(source, []) if p[0] == instance] if source else []
+    if inside:
+        return tuple(sum(axis) / len(inside) for axis in zip(*inside))
+    return SCRIPT_SUMMON_SPOTS.get(name) or (npc and ends.get(npc))
 
 
 # The spawn with the most other spawns around it (where a rare's spawns cluster); ties go to
@@ -466,8 +514,9 @@ def boss_summon(summons, dungeon, npc):
     return on_floors[0] if on_floors else None
 
 
-# Journal spots first, spawn (else summon) spots for the rest; returns (spots, missing, compared).
-def boss_spots(bosses, dungeons, journal, points, summons):
+# Journal spots first, spawn (else summon, else event) spots for the rest; returns
+# (spots, missing, compared).
+def boss_spots(bosses, dungeons, journal, points, summons, ends):
     spots, missing, compared = {}, [], []
     for instance, dungeon in dungeons.items():
         taken = set()
@@ -478,7 +527,7 @@ def boss_spots(bosses, dungeons, journal, points, summons):
             if known and spawn:
                 others = [r for r in dungeon.references if r[0] != spawn]
                 compared.append((instance, name, known, dungeon.place(spawn, others)))
-            spawn = spawn or boss_summon(summons, dungeon, npc)
+            spawn = spawn or boss_summon(summons, dungeon, npc) or event_spot(points, ends, instance, name, npc)
             placed = known or (spawn and dungeon.place(spawn))
             if placed:
                 spots.setdefault(instance, {})[name] = placed
@@ -952,7 +1001,7 @@ def main():
     points = spawn_points(db)
     journal = journal_spots(bosses, dungeons)
     add_references(dungeons, bosses, journal, points)
-    spots, missing, compared = boss_spots(bosses, dungeons, journal, points, summon_points(db))
+    spots, missing, compared = boss_spots(bosses, dungeons, journal, points, summon_points(db), path_ends(db))
     entrances, quest_givers, art = entrance_spots(db, dungeons), quest_spots(db, dungeons, points, quests), ArtCheck(casc, journal, floor_spawns(db, dungeons))
     check_boss_spots(art, spots, journal)
     check_entrances(art, entrances)

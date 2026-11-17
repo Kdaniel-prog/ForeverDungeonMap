@@ -29,6 +29,7 @@ Data\DungeonSpots.lua
 Data\BossLevels.lua
 Data\QuestInfo.lua
 Data\ForeverQuests.lua
+Data\ForeverBosses.lua
 Data\Art.lua
 Data\ClassGear.lua
 ForeverData.lua

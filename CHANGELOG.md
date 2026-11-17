@@ -3,6 +3,27 @@
 All notable changes to ForeverDungeonMap. Versions follow the `## Version` of the .toc;
 releases are tagged `vX.Y.Z`.
 
+## 0.7.3 (unreleased)
+
+### Changed
+- Elite bosses on the dungeon maps have a frame around their portrait instead of the dragon icon
+  on top of it: gold for elites and bosses, silver for rare elites, grey once the boss is dead.
+  Nothing covers the portrait any more.
+- Bosses whose place on the map no source knows yet (the WoW Forever dungeons that are not out:
+  Alcaz Prison, The Drowned City, Blackmaw Hold, The Shaper's Terrace, Krol'dok Stronghold) are
+  no longer missing from the map: they stand in a row at the bottom of it, in boss order, and
+  their tooltip says the spot is not known yet.
+- The bosses of those dungeons have their loot (from wowf.io; King Op's is not known yet) and
+  their creature IDs, and King Op is marked as a rare elite. They stay "Coming soon" until they
+  are out.
+
+### Fixed
+- Event bosses that are summoned or fly in had no pin on the dungeon map. They now stand where
+  they appear: Sunken Temple's Atal'alarion, Weaver and Dreamscythe; Razorfen Downs' Tuten'kash
+  and Plaguemaw the Rotting; Blackfathom Deeps' Baron Aquanis; Lower Blackrock Spire's Warchief
+  Rend Blackhand and Lord Valthalak; Blackrock Depths' Vault; Scholomance's Kirtonos, Kormok,
+  Ras Frostwhisper and Darkmaster Gandling; Stratholme's Ezra Grimm; Dire Maul's Lord Hel'nurath.
+
 ## 0.7.2 (2026-11-17)
 
 ### Changed

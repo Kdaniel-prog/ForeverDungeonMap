@@ -14,6 +14,7 @@ ns.AddTranslations("ruRU", {
     ["Done"] = "Готово",
     ["Click the dungeons to hide or show them, then press Done."] =
         "Нажимайте на подземелья, чтобы скрыть или показать их, затем нажмите «Готово».",
+    ["Where it stands on this map is not known yet."] = "Где он стоит на этой карте, пока неизвестно.",
     ["Live view only inside dungeons"] = "Живая карта только в подземельях",
     ["Open the live view only while you are inside a dungeon or raid."] =
         "Открывает живую карту, только пока вы находитесь в подземелье или рейде.",

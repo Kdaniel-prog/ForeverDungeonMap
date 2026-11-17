@@ -17,8 +17,8 @@ ns.W = W
 
 -- the "?" of a boss without a portrait, relative to the portrait size
 local BARE_UNKNOWN_SCALE = 0.7
--- gold frame and elite dragon of a boss without a portrait, relative to the portrait size
-local UNKNOWN_FRAME_SCALE, ELITE_ICON_SCALE = 1.12, 0.5
+-- the elite frame around a portrait, relative to the portrait size
+local ELITE_FRAME_SCALE = 1.12
 -- round badge: the dark disc inside the gold ring, and the icon's inset, relative to the size
 local BADGE_DISC_INSET, BADGE_ICON_INSET = 0.14, 0.24
 local RARE_ELITE_RANK = 2
@@ -634,7 +634,7 @@ local function AddOrderBadge(portrait)
     portrait.Badge = badge
 end
 
--- The "?" of a boss without a portrait: outlined, inside a thin gold frame, with the elite dragon.
+-- The "?" of a boss without a portrait (outlined) and the elite frame: a ring around the portrait.
 local function AddUnknownMark(portrait, size)
     portrait.Unknown = portrait:CreateFontString(nil, "OVERLAY", size >= 40 and "GameFontNormalHuge" or "GameFontNormal")
     portrait.Unknown:SetPoint("CENTER")
@@ -642,51 +642,39 @@ local function AddUnknownMark(portrait, size)
     portrait.Unknown:Hide()
     local font = portrait.Unknown:GetFont()
     portrait.Unknown:SetFont(font, size * BARE_UNKNOWN_SCALE, "THICKOUTLINE")
-    portrait.UnknownFrame = portrait:CreateTexture(nil, "OVERLAY")
-    portrait.UnknownFrame:SetSize(size * UNKNOWN_FRAME_SCALE, size * UNKNOWN_FRAME_SCALE)
-    portrait.UnknownFrame:SetPoint("CENTER")
-    portrait.UnknownFrame:SetTexture(TEX.GOLD_RING)
-    portrait.UnknownFrame:Hide()
-    portrait.Elite = portrait:CreateTexture(nil, "OVERLAY", nil, 3)
-    portrait.Elite:SetSize(size * ELITE_ICON_SCALE, size * ELITE_ICON_SCALE)
-    portrait.Elite:SetPoint("CENTER", portrait, "TOP", 0, 0)
-    portrait.Elite:Hide()
+    portrait.EliteFrame = portrait:CreateTexture(nil, "OVERLAY")
+    portrait.EliteFrame:SetSize(size * ELITE_FRAME_SCALE, size * ELITE_FRAME_SCALE)
+    portrait.EliteFrame:SetPoint("CENTER")
+    portrait.EliteFrame:SetTexture(TEX.GOLD_RING)
+    portrait.EliteFrame:Hide()
 end
 
--- Silver dragon for rare elites, gold for other elites and bosses. A rank the data does not
--- know: gold when `goldWhenUnknown` (every dungeon boss is elite at least), else nil.
-local function EliteAtlas(boss, instanceID, goldWhenUnknown)
-    if boss.rare then return TEX.ELITE_ATLAS.silver end
+-- True for a rare elite (silver frame); bosses and other elites get the gold one.
+local function IsRareElite(boss, instanceID)
+    if boss.rare then return true end
     local level = instanceID and ns.BossLevel and ns.BossLevel(instanceID, boss.name)
-    local rank = level and level[3]
-    if not rank then return goldWhenUnknown and TEX.ELITE_ATLAS.gold or nil end
-    return rank == RARE_ELITE_RANK and TEX.ELITE_ATLAS.silver or TEX.ELITE_ATLAS.gold
+    return level ~= nil and level[3] == RARE_ELITE_RANK
 end
 
--- Atlas on a texture when the client has it; false (texture untouched) when not.
-function W.SetAtlasIfPresent(texture, atlas)
-    if not (atlas and C_Texture and C_Texture.GetAtlasInfo and C_Texture.GetAtlasInfo(atlas)) then return false end
-    texture:SetAtlas(atlas)
-    return true
-end
-
--- A boss without a creature portrait gets the gold frame and "?". The elite dragon sits on it,
--- and on every portrait made with { eliteDragon = true } (map pins); grey once the boss is dead.
+-- The elite frame: around a "?" portrait, and around every portrait made with
+-- { eliteFrame = true } (map pins). Gold, silver for rare elites, grey once the boss is dead.
+-- Nothing is drawn over the portrait itself.
 local function SetEliteLook(portrait, boss, unknown, instanceID, killed)
-    portrait.UnknownFrame:SetShown(unknown)
-    local wanted = unknown or portrait.alwaysElite
-    local hasDragon = wanted and W.SetAtlasIfPresent(portrait.Elite, EliteAtlas(boss, instanceID, portrait.alwaysElite))
-    portrait.Elite:SetShown(hasDragon and true or false)
-    portrait.Elite:SetDesaturated(killed and true or false)
+    local frame = portrait.EliteFrame
+    frame:SetShown(unknown or portrait.alwaysElite)
+    local silver = IsRareElite(boss, instanceID)
+    frame:SetDesaturated((silver or killed) and true or false)
+    local tint = killed and C.ELITE_FRAME_KILLED or silver and C.ELITE_FRAME_SILVER or C.WHITE
+    frame:SetVertexColor(tint[1], tint[2], tint[3], 1)
 end
 
 -- Round boss portrait without a ring (its art has a dark fill that hides the portrait).
--- options: { levelBadge = size, orderBadge = true, mouse = true, eliteDragon = true }
+-- options: { levelBadge = size, orderBadge = true, mouse = true, eliteFrame = true }
 function W.CreatePortrait(parent, size, options)
     options = options or {}
     local portrait = CreateFrame("Button", nil, parent)
     portrait:SetSize(size, size)
-    portrait.alwaysElite = options.eliteDragon and true or false
+    portrait.alwaysElite = options.eliteFrame and true or false
     portrait.Portrait = portrait:CreateTexture(nil, "ARTWORK")
     portrait.Portrait:SetAllPoints()
     W.Mask(portrait, portrait.Portrait)

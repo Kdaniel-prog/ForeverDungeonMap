@@ -50,14 +50,16 @@ Logs: `B:\World of Warcraft\_forever_\Logs\General.log` (Lua errors) and `...\Lo
     Shift-click opens the quest in the journal.
 16. [ ] Hall of Thanes shows the Old Ironforge tiles in the right order, with no seams or gaps.
 
-## 2b. Journal cards and the map's elite dragons
+## 2b. Journal cards and the map's elite frames
 16a. [ ] Home page: only favourite cards show a star; hovering a card shows its faint star; a
     click makes it gold, the card gets a gold border and moves to the front.
 16b. [ ] "Hide dungeons": every card gets a round tick, the hint line shows at the bottom left. A
     click on a card (or its tick) veils it with "Hidden" and a cross; "Done" removes it from the
     list and the button reads "Hidden (1)". Bringing it back works the same way.
-16c. [ ] Dungeon map (M in a dungeon, or the journal's Map tab): every boss portrait has a small
-    gold dragon on its top edge, rares a silver one; a defeated boss's dragon is grey.
+16c. [ ] Dungeon map (M in a dungeon, or the journal's Map tab): every boss portrait has a gold
+    frame around it (rares silver, defeated bosses grey) and nothing is drawn over the portrait.
+16d. [ ] Sunken Temple's map shows Weaver, Dreamscythe and Atal'alarion in the central pit;
+    Alcaz Prison's map shows its five bosses in a row at the bottom, the tooltip says "not known yet".
 
 ## 3. Inside a dungeon, out of combat
 17. [ ] Press M. The dungeon map opens, boss portraits sit where the bosses stand, floors switch,

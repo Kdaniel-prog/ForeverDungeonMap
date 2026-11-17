@@ -45,6 +45,7 @@ description: Facts and traps for building the ForeverDungeonMap addon on the WoW
 | Data/BossPositions.lua, DungeonSpots.lua, FloorAreas.lua | import_map_spots.py | Blizzard JournalEncounter/UiMapAssignment/WMO files (wago.tools) + CMaNGOS classic-db spawns (GPLv3) |
 | Data/Art.lua | make_art.py | wago.tools file list for build 1.60.1.70938 (FileDataIDs) |
 | Data/Forever.lua | import_forever.py | DungeonMaster, Questie, wago.tools tables, fan sites |
+| Data/ForeverBosses.lua | import_forever_bosses.py | wowf.io pages (status, loot per boss) + mmonster.co guides + Wowhead Forever NPC tooltips (creature ID, elite / rare elite) |
 - ForeverDungeonJournal (FDJ) has NO licence: never copy its code, data or Media, and (user decision,
   0.7.1) never read it at runtime either: every spot, map and reward comes from our own shipped data,
   so every character sees the same thing. APR is "All Rights
