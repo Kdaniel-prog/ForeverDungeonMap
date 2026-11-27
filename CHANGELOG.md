@@ -3,7 +3,7 @@
 All notable changes to ForeverDungeonMap. Versions follow the `## Version` of the .toc;
 releases are tagged `vX.Y.Z`.
 
-## Unreleased
+## 0.8.0 (2026-11-27)
 
 ### Changed
 - Live view: inside a dungeon it stays open on its own, no world map (M) needed: bigger, at the
