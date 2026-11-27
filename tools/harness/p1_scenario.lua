@@ -189,25 +189,44 @@ for _, wanted in ipairs({ { 109, "Weaver" }, { 109, "Dreamscythe" }, { 109, "Ata
     Check(("%d %s has a map spot"):format(wanted[1], wanted[2]), ns.GetBossPos(wanted[1], wanted[2]) ~= nil)
 end
 
--- a new Forever dungeon whose spots no source has: every boss in the row at the map's bottom
+-- bosses no source has a spot for stand in a row at the map's bottom (two of Blackmaw Hold's
+-- are taken off the map for this)
+local BLACKMAW_HOLD = 2974
+local UNPLACED = { "Unbound Spirit", "Varrox Bleakhoof" }
+local keptSpots = {}
+for _, name in ipairs(UNPLACED) do keptSpots[name], ns.BOSS_POS[BLACKMAW_HOLD][name] = ns.BOSS_POS[BLACKMAW_HOLD][name], nil end
+Step("journal map tab of Blackmaw Hold", function() ns.Journal:OpenDungeon(BLACKMAW_HOLD, "map") end)
+local blackmawMap = ns.Journal.map
+Check("Blackmaw Hold: every boss has a pin", blackmawMap.numPins == #ns.BOSSES[BLACKMAW_HOLD], blackmawMap.numPins)
+local unplacedPins = {}
+for i = 1, blackmawMap.numPins do
+    local pin = blackmawMap.pins[i]
+    if not ns.GetBossPos(BLACKMAW_HOLD, pin.boss.name) then unplacedPins[#unplacedPins + 1] = pin end
+end
+local firstPin, secondPin = unplacedPins[1], unplacedPins[2]
+local _, _, _, firstX, firstY = firstPin:GetPoint(1)
+local _, _, _, secondX, secondY = secondPin:GetPoint(1)
+Check("Blackmaw Hold: the bosses without a spot stand in one row, in boss order", firstY == secondY and secondX > firstX
+    and firstPin.index < secondPin.index)
+Step("hover a Blackmaw Hold pin without a spot", function() Mock.Enter(firstPin) end)
+Check("its tooltip says the spot is not known yet", table.concat(GameTooltip._lines, " "):find("not known yet", 1, true) ~= nil,
+    table.concat(GameTooltip._lines, " | "))
+Step("leave the pin", function() Mock.Leave(firstPin) end)
+for name, spot in pairs(keptSpots) do ns.BOSS_POS[BLACKMAW_HOLD][name] = spot end
+
+-- Alcaz Prison: every boss on its spot (forg.gg's map fitted onto ours)
 Step("journal map tab of Alcaz Prison", function() ns.Journal:OpenDungeon(2994, "map") end)
 local alcazMap = ns.Journal.map
 local alcazBosses = ns.BOSSES[2994] or {}
 Check("Alcaz Prison: every boss has a pin", alcazMap.numPins == #alcazBosses and #alcazBosses == 5, alcazMap.numPins)
-local firstPin, secondPin = alcazMap.pins[1], alcazMap.pins[2]
-local _, _, _, firstX, firstY = firstPin:GetPoint(1)
-local _, _, _, secondX, secondY = secondPin:GetPoint(1)
-Check("Alcaz Prison: the pins stand in one row, in boss order", firstY == secondY and secondX > firstX
-    and firstPin.index == 1 and secondPin.index == 2)
-Step("hover an Alcaz Prison pin", function() Mock.Enter(firstPin) end)
-Check("its tooltip says the spot is not known yet", table.concat(GameTooltip._lines, " "):find("not known yet", 1, true) ~= nil,
-    table.concat(GameTooltip._lines, " | "))
-Step("leave the pin", function() Mock.Leave(firstPin) end)
+local placed = 0
+for _, boss in ipairs(alcazBosses) do if ns.GetBossPos(2994, boss.name) then placed = placed + 1 end end
+Check("Alcaz Prison: every boss has a map spot", placed == #alcazBosses, placed)
 Check("Alcaz Prison bosses carry their creature IDs", alcazBosses[1] and alcazBosses[1].npcID == 255391)
 local withLoot = 0
 for _, boss in ipairs(alcazBosses) do if boss.loot and #boss.loot > 0 then withLoot = withLoot + 1 end end
 Check("Alcaz Prison: every boss has its loot", withLoot == #alcazBosses, withLoot)
-Check("Alcaz Prison stays coming soon while it is not out", ns.DUNGEONS[2994] and ns.DUNGEONS[2994].comingSoon == true)
+Check("Alcaz Prison is out: no longer coming soon", ns.DUNGEONS[2994] and not ns.DUNGEONS[2994].comingSoon)
 local kingOp
 for _, boss in ipairs(ns.BOSSES[3001] or {}) do if boss.name == "King Op" then kingOp = boss end end
 Check("King Op (rare elite) is marked rare: silver frame", kingOp and kingOp.rare == true)

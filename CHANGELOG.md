@@ -3,6 +3,52 @@
 All notable changes to ForeverDungeonMap. Versions follow the `## Version` of the .toc;
 releases are tagged `vX.Y.Z`.
 
+## Unreleased
+
+### Changed
+- Live view: inside a dungeon it stays open on its own, no world map (M) needed: bigger, at the
+  top right of the screen until you drag it elsewhere (the spot is kept), with zoom in / zoom out
+  buttons in its bottom-left corner. Closed, it comes back in the next dungeon. Option: "Live view
+  on its own in dungeons" (off: the old way, next to the world map).
+- The Drowned City, Krol'dok Stronghold, Alcaz Prison, Blackmaw Hold and The Shaper's Terrace no
+  longer say "Coming soon": they are out (their bosses are seen dropping loot).
+
+### Fixed
+- Dungeon entrance and quest pins on the zone maps were drawn under Blizzard's own quest hub ("...")
+  and point-of-interest pins and could not be seen (The Drowned City under the Vile Reef): they are on top now.
+- Boss portraits learned in play: every creature is loaded on a fresh model frame, and the client's
+  stand-in model (the same ID for several bosses) is never kept; wrong ones learned before are dropped.
+
+### Added
+- Quests of the new WoW Forever dungeons: The Drowned City (11), Krol'dok Stronghold, Alcaz Prison,
+  Blackmaw Hold and The Shaper's Terrace, with their chains (e.g. The Vile Reef before The Drowned
+  City) and the quest givers on the world map where their spot is known.
+- New bosses: Gill, "Pyromancer" Braxton and Umbra (rare elites, The Drowned City), Bossman Toof
+  (Krol'dok Stronghold), Moontouched Wanderer (rare elite, Blackmaw Hold), with their drops.
+  The Drowned City has its entrance in Stranglethorn Vale.
+- The Drowned City map: every boss and rare in its place (from the Icy Veins map), the entrance,
+  and the four Tablets of I'lalai while "The Drowned City" / "Take Two With Water" is in the log.
+- Alcaz Prison, Krol'dok Stronghold and The Shaper's Terrace: every boss and rare on its spot of the
+  dungeon map, and the entrance (forg.gg's floor maps fitted onto ours). Blackmaw Hold: Impaan,
+  Bonesnout and the entrance exact; Withermaw and the bosses of its deep caves (Unbound Spirit,
+  Bloodmane, Blackmaw Behemoth, Varrox) roughly, their tooltip says so.
+- Quest givers no source places get a rough spot at the place they stand at (Farholde Keep, Rog'mar,
+  Ursolan, Brackenwall Village, Legashi Stronghold), shown with "~"; Alcaz Prison's givers stand inside.
+- New quests: Shaw Needs To Know, State Secrets (Alliance and Horde); The Secret Prison, The Man in the
+  Iron Chains, Krol'dok Moulding, Lingering Essence and Beneath Nordrassil now count as dungeon quests;
+  quest rewards, more quest giver spots (Lorekeeper Nok, Commander Truesong, Curator Thorius...).
+- Quest pages of the new dungeons show the objective and where the quest items drop.
+- Boss pages of the new bosses show the creature in 3D where the client has no Encounter Journal
+  picture of it.
+- Dungeon entrances: Alcaz Prison (Alcaz Island) and Krol'dok Stronghold exact now, The Shaper's
+  Terrace approximate (Un'Goro Crater); quest givers of Krol'dok placed (Icy Veins).
+- Portraits for bosses no data source has a picture for: the addon loads the creature in game and
+  keeps its display ID (also in /fdmap export).
+- Recap: every recorded run in a list on the left; a click shows the run in full on the right:
+  start and end time, time inside, experience (per hour), money, deaths, the bosses with how far
+  into the run each fell (the ones not defeated greyed), quests (click: their journal page), the
+  group with class icons, and the loot.
+
 ## 0.7.3 (2026-11-17)
 
 ### Changed

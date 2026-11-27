@@ -1,9 +1,11 @@
 -- ForeverDungeonMap - live view
 -- Inside instances the game gives addons no positions at all. The minimap is
 -- drawn by the client itself and still shows the player and the group, so
--- while the world map is open (everywhere, or only inside dungeons: the
--- player's choice) we borrow the real Minimap, enlarge it in a movable window
--- next to the world map and give it back unchanged afterwards.
+-- we borrow the real Minimap, enlarge it in a movable window with zoom
+-- buttons and give it back unchanged afterwards. Inside a dungeon the window
+-- stands on its own (top right until dragged, no world map needed); elsewhere,
+-- or with that option off, it opens next to the world map while the map is
+-- open (everywhere, or only inside dungeons: the player's choice).
 -- Taint rules kept here (docs/taint-report.md):
 --  * nothing of Blizzard's is moved, resized or reparented in combat; the
 --    change waits for the end of combat (ns.AfterCombat);
@@ -47,6 +49,11 @@ local SIDE_GAP = CONTENT_INSET - FILL_INSET
 -- the title bar leaves this corner to the close button
 local CLOSE_BUTTON_ROOM = 32
 local WINDOW_GAP = 6
+-- the window on its own inside a dungeon: side of the minimap, distance from the screen's top right
+local ALONE_SIDE = 360
+local ALONE_RIGHT, ALONE_TOP = -16, -16
+-- zoom in / out buttons in the footer's left corner
+local ZOOM_BUTTON_SIZE, ZOOM_BUTTON_GAP = 18, 4
 local MINIMAP_LEVEL_ABOVE_WINDOW = 5
 -- other addons put the minimap back on their own terms within this time after it moved in
 local LAYERS_KEPT_AFTER_SECONDS = 1
@@ -113,11 +120,21 @@ local function WorldMapScale()
     return WorldMapFrame:GetEffectiveScale() / UIParent:GetEffectiveScale()
 end
 
+-- Zoom the borrowed minimap one step in (1) or out (-1).
+local function ZoomBy(step)
+    if not borrowed then return end
+    Minimap:SetZoom(math.max(0, math.min(HighestZoom(), Minimap:GetZoom() + step)))
+end
+
 -- Wheel over the borrowed minimap: zoom, unless Blizzard already does.
-local function OnMinimapWheel(minimap, delta)
-    if not borrowed or blizzardWheelZooms then return end
-    local step = delta > 0 and 1 or -1
-    minimap:SetZoom(math.max(0, math.min(HighestZoom(), minimap:GetZoom() + step)))
+local function OnMinimapWheel(_, delta)
+    if blizzardWheelZooms then return end
+    ZoomBy(delta > 0 and 1 or -1)
+end
+
+-- The window stands on its own: inside a dungeon, unless the player wants it with the world map only.
+local function IsAlone()
+    return ns.instanceID ~= nil and ns.Setting("liveViewAlone") ~= false
 end
 
 -- only frames are checked: textures of the minimap never take the mouse
@@ -442,10 +459,15 @@ local function UpdateFooter()
     locationLabel:SetText(LocationText())
 end
 
--- Where the player dragged it, or next to the world map: right side if there is room, otherwise left.
+-- Where the player dragged it; on its own at the screen's top right; else next to the world map:
+-- right side if there is room, otherwise left.
 local function PlaceWindow()
     if W.RestorePosition(window) then return end
     window:ClearAllPoints()
+    if IsAlone() then
+        window:SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", ALONE_RIGHT, ALONE_TOP)
+        return
+    end
     local scale = WorldMapScale()
     local mapRight = (WorldMapFrame:GetRight() or 0) * scale
     local neededWidth = WorldMapFrame:GetHeight() * scale + WINDOW_GAP
@@ -456,14 +478,19 @@ local function PlaceWindow()
     end
 end
 
--- Same height as the world map window; the minimap inside stays square. A window that holds
--- the minimap is resized after combat only.
+-- Height of the window: its own on its own, else the world map window's.
+local function WindowHeight()
+    if IsAlone() then return ALONE_SIDE + TITLE_HEIGHT + FOOTER_HEIGHT + 2 * CONTENT_INSET end
+    return math.floor(WorldMapFrame:GetHeight() * WorldMapScale() + 0.5)
+end
+
+-- The minimap inside stays square. A window that holds the minimap is resized after combat only.
 local function ApplySize()
     if borrowed and InCombatLockdown() then
         ns.AfterCombat(COMBAT_KEY_SIZE, ApplySize)
         return
     end
-    local height = math.floor(WorldMapFrame:GetHeight() * WorldMapScale() + 0.5)
+    local height = WindowHeight()
     local side = math.max(MINIMUM_SIDE, height - TITLE_HEIGHT - FOOTER_HEIGHT - 2 * CONTENT_INSET)
     if window.side == side then return end
     window.side = side
@@ -478,14 +505,30 @@ local function SetTitle(text)
     if window.Title then window.Title:SetText(text) end
 end
 
--- Footer: group names on the left, area and floor on the right.
+-- Zoom in, then zoom out, in the footer's left corner; returns the last one.
+local function CreateZoomButtons()
+    local zoomIn = W.IconButton(window, ZOOM_BUTTON_SIZE, TEX.PLUS, 1)
+    zoomIn:SetPoint("BOTTOMLEFT", CONTENT_INSET, (FOOTER_HEIGHT - ZOOM_BUTTON_SIZE) / 2 + 2)
+    zoomIn:SetScript("OnClick", function() ZoomBy(1) end)
+    W.Tooltip(zoomIn, L["Zoom in"])
+    local zoomOut = W.IconButton(window, ZOOM_BUTTON_SIZE, TEX.MINUS, 1)
+    zoomOut:SetPoint("LEFT", zoomIn, "RIGHT", ZOOM_BUTTON_GAP, 0)
+    zoomOut:SetScript("OnClick", function() ZoomBy(-1) end)
+    W.Tooltip(zoomOut, L["Zoom out"])
+    -- tests press them
+    Live.zoomButtons = { zoomIn, zoomOut }
+    return zoomOut
+end
+
+-- Footer: zoom buttons and group names on the left, area and floor on the right.
 local function CreateFooter()
     locationLabel = window:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     locationLabel:SetPoint("BOTTOMRIGHT", -CONTENT_INSET - 2, FOOTER_HEIGHT / 2 - 2)
     locationLabel:SetJustifyH("RIGHT")
     locationLabel:SetWordWrap(false)
+    local lastZoomButton = CreateZoomButtons()
     groupLabel = window:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    groupLabel:SetPoint("BOTTOMLEFT", CONTENT_INSET + 2, FOOTER_HEIGHT / 2 - 2)
+    groupLabel:SetPoint("LEFT", lastZoomButton, "RIGHT", FOOTER_GAP, 0)
     groupLabel:SetPoint("RIGHT", locationLabel, "LEFT", -FOOTER_GAP, 0)
     groupLabel:SetJustifyH("LEFT")
     groupLabel:SetWordWrap(false)
@@ -624,10 +667,12 @@ local function HideNow()
     window:Hide()
 end
 
--- The live view belongs next to the open world map: everywhere, or only inside a dungeon or raid
--- when the player chose that. Not after the player closed it, and not in Edit Mode.
+-- The live view stands on its own inside a dungeon, else it belongs next to the open world map:
+-- everywhere, or only inside a dungeon or raid when the player chose that. Not after the player
+-- closed it, and not in Edit Mode.
 local function IsWanted()
     if Live.closedByUser or editModeOpen or ns.Setting("liveView") == false then return false end
+    if IsAlone() then return true end
     if not (WorldMapFrame and WorldMapFrame:IsShown()) then return false end
     return ns.instanceID ~= nil or ns.Setting("liveViewOnlyInDungeons") ~= true
 end
@@ -651,7 +696,7 @@ function Live:Show()
     ns.AfterCombat(COMBAT_KEY_VISIBILITY, ShowIfStillWanted)
 end
 
--- byUser: the player closed it; it stays closed until the map is reopened.
+-- byUser: the player closed it; it stays closed until the map is reopened or a new dungeon starts.
 function Live:Hide(byUser)
     if byUser then self.closedByUser = true end
     if not window then return end
@@ -792,7 +837,18 @@ end
 
 ns.WatchSetting("liveView", function() Live:Update() end)
 ns.WatchSetting("liveViewOnlyInDungeons", function() Live:Update() end)
-ns.OnInstanceChanged(function() Live:Update() end)
+
+-- On its own or next to the map: another place and size.
+local function PlaceAndSizeAgain()
+    if window then window.side = nil end
+    Live:Update()
+end
+
+ns.WatchSetting("liveViewAlone", PlaceAndSizeAgain)
+ns.OnInstanceChanged(function()
+    Live.closedByUser = false
+    PlaceAndSizeAgain()
+end)
 
 ns.OnLoad(function()
     WatchMinimap()

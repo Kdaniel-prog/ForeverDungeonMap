@@ -100,6 +100,11 @@ local boss, quest = ns.BOSSES[WAILING_CAVERNS][1], ns.QUESTS[WAILING_CAVERNS][1]
 Step("defeat " .. boss.name, function() M.FireEvent("ENCOUNTER_END", boss.encounter or 0, boss.name, 1, 5, 1) end)
 Step("turn in a quest", function() M.FireEvent("QUEST_TURNED_IN", quest.id, 500, 0) end)
 Step("die", function() M.FireEvent("PLAYER_DEAD") end)
+Check("1: the boss's kill time is kept", run.killTimes and run.killTimes[boss.name] ~= nil, run.killTimes and tostring(run.killTimes[boss.name]))
+M.party = { { name = "Healbot", class = "PRIEST" } }
+Step("a priest joins", function() M.FireEvent("GROUP_ROSTER_UPDATE") end)
+Check("1: the group is remembered", run.group and run.group.Healbot == "PRIEST")
+M.party = {}
 Check("1: boss, quest and death are recorded", run.bosses[1] == boss.name and run.quests[1] == quest.id and run.deaths == 1,
     ("%s %s %s"):format(tostring(run.bosses[1]), tostring(run.quests[1]), tostring(run.deaths)))
 
@@ -184,6 +189,23 @@ Step("Older", function() M.Click(Navigation("Older")) end)
 Check("9: Older reaches the first run", PageShows("Wailing Caverns") and PageShows("Run 3 of 3") and PageShows("x5"), PageTexts())
 Step("Newer", function() M.Click(Navigation("Newer")) end)
 Check("9: Newer goes back", PageShows("Run 2 of 3"), PageTexts())
+
+-- 9b. the list on the left: one row per run, a click shows that run in full
+local function RunRows()
+    local rows = {}
+    M.FindChild(_G.ForeverDungeonMapRecap, function(child)
+        if child.index and child.Sub and child:IsVisible() then rows[#rows + 1] = child end
+        return false
+    end)
+    table.sort(rows, function(first, second) return first.index < second.index end)
+    return rows
+end
+local rows = RunRows()
+Check("9b: the list has a row per run", #rows == 3, #rows)
+if rows[3] then M.Click(rows[3]) end
+Check("9b: a click on the oldest row shows it", PageShows("Run 3 of 3") and PageShows("Wailing Caverns") and PageShows("Healbot"), PageTexts())
+Check("9b: the defeated boss shows when it fell", PageShows(boss.name .. "  ·  "), PageTexts())
+CloseRecap()
 
 -- 10. only the newest runs are kept
 for index = 1, MAX_RUNS + 3 do

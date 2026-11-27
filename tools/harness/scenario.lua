@@ -1,6 +1,12 @@
 -- scenario.lua - default end-to-end scenario for ForeverDungeonMap (v0.6 UI, docs/ui-spec.md)
 -- Run with and without --combat; every check must pass in both.
 local addonName, ns = ...
+
+-- the live view next to the world map is checked here: the one on its own inside dungeons
+-- (liveViewAlone) has its own part in liveview_scenario.lua
+ForeverDungeonMapDB = ForeverDungeonMapDB or {}
+ForeverDungeonMapDB.liveViewAlone = false
+if ns.db then ns.db.liveViewAlone = false end
 local M = MOCK
 local Check, Step = M.Check, M.Step
 local COMBAT = M.combat
@@ -50,7 +56,7 @@ for _, id in ipairs({ 2959, 2998, 2999, 3065, 2970, 2974, 2994, 3001, 3039 }) do
     Check("forever dungeon " .. id .. " in the journal", d ~= nil and d.forever == true, d and d.name)
 end
 if ns.FOREVER then
-    Check("new forever dungeons are 'coming soon' without quests/loot", ns.DUNGEONS[2970] and ns.DUNGEONS[2970].comingSoon == true)
+    Check("new forever dungeons that are out are not 'coming soon'", ns.DUNGEONS[2970] and not ns.DUNGEONS[2970].comingSoon)
     Check("forever bosses get levels", ns.BossLevel(2959, "Arcane Anomaly") ~= nil)
 end
 
@@ -76,6 +82,9 @@ end
 ---------------------------------------------------------------------------
 -- journal home
 ---------------------------------------------------------------------------
+-- every Forever dungeon is out now: one is marked coming soon here so the badge is still tested
+local comingSoonBefore = ns.DUNGEONS[2994] and ns.DUNGEONS[2994].comingSoon
+if ns.DUNGEONS[2994] then ns.DUNGEONS[2994].comingSoon = true end
 Step("Journal:ShowHome", function() ns.Journal:ShowHome() end)
 local journal = _G.ForeverDungeonMapJournal
 Check("journal frame shown, 860x632 (600 + bug report footer)", journal and journal:IsVisible() and journal:GetWidth() == 860 and journal:GetHeight() == 632)
@@ -96,6 +105,7 @@ if grid then
     end
     Check("home: every card has art", #artless == 0, table.concat(artless, ", "))
     if ns.FOREVER then Check("home: coming soon badge", soonTag) end
+    if ns.DUNGEONS[2994] then ns.DUNGEONS[2994].comingSoon = comingSoonBefore end
     CheckHoverAll("home", journal)
 end
 local search = _G.ForeverDungeonMapJournalSearch

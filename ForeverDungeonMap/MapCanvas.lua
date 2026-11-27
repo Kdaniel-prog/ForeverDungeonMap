@@ -296,8 +296,11 @@ function MapCanvas:ShowBossTooltip(owner, boss, index)
     if ns.IsKilled(instanceID, boss.name) then
         GameTooltip:AddLine(ns.IconString(TEX.CROSS, DEFEATED_ICON_SIZE) .. " Defeated", C.DEFEATED[1], C.DEFEATED[2], C.DEFEATED[3])
     end
-    if not ns.GetBossPos(instanceID, boss.name) then
+    local position = ns.GetBossPos(instanceID, boss.name)
+    if not position then
         GameTooltip:AddLine(L["Where it stands on this map is not known yet."], C.MUTED[1], C.MUTED[2], C.MUTED[3], true)
+    elseif position.approx then
+        GameTooltip:AddLine(L["Only roughly here: it stands on a lower level of the dungeon."], C.MUTED[1], C.MUTED[2], C.MUTED[3], true)
     end
     AddLootLines(boss.loot or {})
     GameTooltip:AddLine("Click: loot & quests", C.HINT[1], C.HINT[2], C.HINT[3])

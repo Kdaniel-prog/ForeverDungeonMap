@@ -10,6 +10,10 @@ local PinBase = {}
 ns.PinBase = PinBase
 
 local TOOLTIP_ANCHOR = "ANCHOR_RIGHT"
+-- Without a level type a pin sits on the canvas's lowest level, under Blizzard's quest hub ("..."),
+-- area POI and quest offer pins: the Drowned City entrance was hidden under the Vile Reef hub.
+-- This type is above those and below the group members and the player.
+local PIN_FRAME_LEVEL_TYPE = "PIN_FRAME_LEVEL_TRACKED_CONTENT"
 
 -- Methods every pin mixin gets. The canvas calls the first three on its pins; they are only
 -- allowed from Blizzard code, and on an addon pin they raise the "blocked from an action only
@@ -49,6 +53,11 @@ function PinMixin:OnMouseUp(button)
     elseif self.OnPinClick then
         self:OnPinClick(button)
     end
+end
+
+-- Draw the pin above Blizzard's own pins (kinds call this from OnLoad); the canvas applies it.
+function PinMixin:RaiseAboveBlizzardPins()
+    if self.UseFrameLevelType then self:UseFrameLevelType(PIN_FRAME_LEVEL_TYPE) end
 end
 
 -- Kinds fill these in.

@@ -224,6 +224,7 @@ end
 function Pin:OnLoad()
     W.MarkOwned(self)
     self:ApplyScalingLimits(PIN_SCALE_MIN, PIN_SCALE_MAX)
+    self:RaiseAboveBlizzardPins()
     self:SetSize(PIN_SIZE, PIN_SIZE)
     self.Icon = self:CreateTexture(nil, "ARTWORK")
     self.Icon:SetAllPoints()

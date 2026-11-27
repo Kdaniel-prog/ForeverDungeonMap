@@ -1,6 +1,7 @@
 -- ForeverDungeonMap - quest givers and turn-ins inside a dungeon, drawn on the dungeon map
--- (MapCanvas). Spots come from Data/DungeonSpots.lua: "!" where a quest can be picked up, "?"
--- where a quest in the log is turned in. Click: the quest in the journal.
+-- (MapCanvas). Spots come from Data/DungeonSpots.lua and ForeverData.lua: "!" where a quest can be
+-- picked up, "?" where a quest in the log is turned in, the log icon where an objective of a quest
+-- in the log lies. Click: the quest in the journal.
 -- Copyright (C) 2026 kiszeldaniel. Licensed under the GNU GPL v3 (see LICENSE).
 
 local _, ns = ...
@@ -14,6 +15,8 @@ local LEVEL_ABOVE_AREA = 3
 -- states that earn a giver its "!" and an ender its "?"
 local START_STATES = { avail = true, locked = true }
 local END_STATES = { log = true, ready = true }
+-- an objective spot (a tablet to rub) matters while the quest is in the log and not done
+local OBJECTIVE_STATES = { log = true }
 local CLICK_HINT = L["Click: open in Dungeon Journal"]
 
 -- { quest, state } of the spot's quests worth a marker now, most urgent first.
@@ -28,6 +31,7 @@ local function SpotEntries(spot)
     end
     Add(spot.ends, END_STATES)
     Add(spot.starts, START_STATES)
+    Add(spot.objectives, OBJECTIVE_STATES)
     table.sort(entries, function(a, b) return W.STATE_ORDER[a.state] < W.STATE_ORDER[b.state] end)
     return entries
 end

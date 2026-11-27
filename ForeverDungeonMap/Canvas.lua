@@ -523,6 +523,10 @@ local function MakeBossHead(parent)
     head.Art = head.ArtFrame:CreateTexture(nil, "ARTWORK")
     head.Art:SetPoint("TOPLEFT", 1, -1)
     head.Art:SetPoint("BOTTOMRIGHT", -1, 1)
+    -- the creature itself in 3D where the client has no Encounter Journal picture of it
+    head.Model = CreateFrame("PlayerModel", nil, head.ArtFrame)
+    head.Model:SetPoint("TOPLEFT", 1, -1)
+    head.Model:SetPoint("BOTTOMRIGHT", -1, 1)
     head.Name = head:CreateFontString(nil, "OVERLAY", ns.Font("title"))
     head.Name:SetPoint("TOPLEFT", 92, -14)
     head.Name:SetJustifyH("LEFT")
@@ -544,6 +548,19 @@ local function BossInfoText(boss, index, total, instanceID, killed)
     return table.concat(parts, " · ")
 end
 
+-- The Encounter Journal picture of the boss, else its 3D model (BossModels.lua); false when neither.
+local function SetBossPicture(head, boss, killed)
+    local art = ns.BOSS_ART and ns.BOSS_ART[boss.name]
+    head.Art:SetShown(art ~= nil)
+    if art then
+        head.Art:SetTexture(art)
+        head.Art:SetDesaturated(killed and true or false)
+        head.Model:Hide()
+        return true
+    end
+    return ns.BossModels ~= nil and ns.BossModels.ShowCreature(head.Model, boss)
+end
+
 -- Boss detail header: portrait, name, info line, Encounter Journal creature picture, Show on map.
 function Canvas:BossHead(boss, index, total, instanceID, onShowOnMap)
     local head = self:Acquire("bosshead", MakeBossHead)
@@ -551,15 +568,9 @@ function Canvas:BossHead(boss, index, total, instanceID, onShowOnMap)
     W.SetPortrait(head.Portrait, boss, killed, instanceID)
     head.Name:SetText(boss.name)
     head.Name:SetTextColor(C.GOLD[1], C.GOLD[2], C.GOLD[3])
-    local art = ns.BOSS_ART and ns.BOSS_ART[boss.name]
-    head.ArtFrame:SetShown(art ~= nil)
-    if art then
-        head.Art:SetTexture(art)
-        head.Art:SetDesaturated(killed and true or false)
-        head.Name:SetPoint("RIGHT", head.ArtFrame, "LEFT", -8, 0)
-    else
-        head.Name:SetPoint("RIGHT", head, "RIGHT", -4, 0)
-    end
+    local shown = SetBossPicture(head, boss, killed)
+    head.ArtFrame:SetShown(shown)
+    head.Name:SetPoint("RIGHT", shown and head.ArtFrame or head, shown and "LEFT" or "RIGHT", shown and -8 or -4, 0)
     head.Info:SetText(BossInfoText(boss, index, total, instanceID, killed))
     head.Info:SetTextColor(C.MUTED[1], C.MUTED[2], C.MUTED[3])
     head.MapButton:SetShown(onShowOnMap ~= nil)

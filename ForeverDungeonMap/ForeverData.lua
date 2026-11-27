@@ -101,6 +101,8 @@ local function MergeDungeon(instanceID, foreverDungeon)
     -- "coming soon": the dungeon is not out (Data/ForeverBosses.lua), else neither quests nor
     -- loot are known yet
     local comingSoon = ComingDungeon(instanceID).comingSoon
+    -- out by Data/JourneyContent.lua: its bosses are seen dropping loot
+    if TableOrEmpty(ns.JOURNEY_RELEASED)[instanceID] then comingSoon = false end
     if comingSoon ~= nil then
         dungeon.comingSoon = comingSoon
     elseif dungeon.comingSoon then
@@ -111,6 +113,35 @@ end
 for instanceID, foreverDungeon in pairs(TableOrEmpty(forever.dungeons)) do
     if type(instanceID) == "number" and type(foreverDungeon) == "table" and foreverDungeon.name then
         MergeDungeon(instanceID, foreverDungeon)
+    end
+end
+
+local function HasBoss(bosses, name)
+    for _, boss in ipairs(bosses) do
+        if boss.name == name then return true end
+    end
+    return false
+end
+
+-- Bosses and rare elites of the new dungeons the client data does not list (Data/JourneyContent.lua).
+local function AddJourneyBosses(instanceID, extraBosses)
+    local bosses = ns.BOSSES[instanceID]
+    if type(bosses) ~= "table" then return end
+    for _, extra in ipairs(TableOrEmpty(extraBosses)) do
+        if type(extra) == "table" and extra.name and not HasBoss(bosses, extra.name) then
+            table.insert(bosses, { name = extra.name, npcID = extra.npcID, rare = extra.rare, loot = extra.loot })
+        end
+    end
+end
+
+for instanceID, extraBosses in pairs(TableOrEmpty(ns.JOURNEY_BOSSES)) do AddJourneyBosses(instanceID, extraBosses) end
+
+-- Entrances of Data/JourneyContent.lua: where the client tables have none, or only a rough one.
+for instanceID, entrance in pairs(TableOrEmpty(ns.JOURNEY_ENTRANCES)) do
+    local dungeon = ns.DUNGEONS[instanceID]
+    local replaces = dungeon and (not dungeon.entrance or (dungeon.entrance.approx and not entrance.approx))
+    if replaces and type(entrance) == "table" and entrance.map and entrance.x then
+        dungeon.entrance = { map = entrance.map, x = entrance.x, y = entrance.y, approx = entrance.approx }
     end
 end
 
@@ -127,7 +158,7 @@ end
 -- Boss and entrance spots on the Forever art (percent there, 0..1 in BOSS_POS / ENTRANCE_ON_ART):
 -- the shipped tables first, Forever fills the gaps.
 local function ArtSpot(spot)
-    return { floor = spot.floor, x = spot.x / ns.PERCENT, y = spot.y / ns.PERCENT, roams = spot.roams }
+    return { floor = spot.floor, x = spot.x / ns.PERCENT, y = spot.y / ns.PERCENT, roams = spot.roams, approx = spot.approx }
 end
 
 ns.BOSS_POS = ns.BOSS_POS or {}
@@ -148,6 +179,24 @@ for instanceID, foreverDungeon in pairs(TableOrEmpty(forever.dungeons)) do
     end
 end
 
+-- Boss, rare and entrance spots the guide maps show (Data/JourneyContent.lua) fill what is still missing.
+local function AddJourneySpots(instanceID, spots)
+    ns.BOSS_POS[instanceID] = ns.BOSS_POS[instanceID] or {}
+    for bossName, spot in pairs(TableOrEmpty(spots.bosses)) do
+        if ns.BOSS_POS[instanceID][bossName] == nil and type(spot) == "table" and spot.x then
+            ns.BOSS_POS[instanceID][bossName] = ArtSpot(spot)
+        end
+    end
+    local entrance = spots.entrance
+    if not ns.ENTRANCE_ON_ART[instanceID] and type(entrance) == "table" and entrance.x then
+        ns.ENTRANCE_ON_ART[instanceID] = ArtSpot(entrance)
+    end
+end
+
+for instanceID, spots in pairs(TableOrEmpty(ns.JOURNEY_SPOTS)) do
+    if type(spots) == "table" then AddJourneySpots(instanceID, spots) end
+end
+
 -- Quest locations: QUEST_INFO first, then Forever.
 for questID, info in pairs(TableOrEmpty(forever.quests)) do
     if type(info) == "table" then
@@ -161,7 +210,7 @@ end
 
 -- Checked Forever quest data (Data/ForeverQuests.lua) beats both: spots, chains, levels.
 local CHECKED_INFO_KEYS = { "lvl", "req", "start", "finish" }
-local CHECKED_QUEST_KEYS = { "name", "faction", "pre", "next", "inside", "drop" }
+local CHECKED_QUEST_KEYS = { "name", "faction", "classes", "pre", "next", "inside", "drop" }
 
 local function FindQuest(instanceID, questID)
     for _, quest in ipairs(ns.QUESTS[instanceID] or {}) do
@@ -198,6 +247,26 @@ for questID, checked in pairs(TableOrEmpty(ns.FOREVER_QUESTS)) do
             end
         end
     end
+end
+
+-- A quest of the new dungeons (Data/JourneyContent.lua): it only fills what the tables above lack,
+-- so the checked data and Questie's spots win.
+local function AddJourneyQuest(questID, journey)
+    local info = ns.QUEST_INFO[questID] or {}
+    ns.QUEST_INFO[questID] = info
+    FillMissing(info, journey, CHECKED_INFO_KEYS)
+    ns.QUEST_NAMES[questID] = ns.QUEST_NAMES[questID] or journey.name
+    if not journey.dungeon or FindQuest(journey.dungeon, questID) then return end
+    local quest = DungeonQuest(journey.dungeon, questID, journey)
+    for _, key in ipairs(CHECKED_QUEST_KEYS) do
+        if journey[key] ~= nil then quest[key] = journey[key] end
+    end
+    quest.objective = quest.objective or journey.objective
+    quest.rewards, quest.choices = quest.rewards or journey.rewards, quest.choices or journey.choices
+end
+
+for questID, journey in pairs(TableOrEmpty(ns.JOURNEY_QUESTS)) do
+    if type(journey) == "table" and TableOrEmpty(ns.FOREVER_QUESTS)[questID] == nil then AddJourneyQuest(questID, journey) end
 end
 
 -- An item a boss drops that starts a quest goes into the boss's loot (like Mutanus' Glowing Shard).
@@ -245,6 +314,19 @@ for questID, checked in pairs(TableOrEmpty(ns.FOREVER_QUESTS)) do
         AddQuestSpot(checked.dungeon, questID, checked.start, "starts")
         AddQuestSpot(checked.dungeon, questID, checked.finish, "ends")
     end
+end
+
+-- Where a quest's objective lies in the dungeon (the I'lalai tablets): a marker on the dungeon map
+-- while the quest is in the log.
+local function AddObjectiveSpot(instanceID, objective)
+    if not (type(objective) == "table" and objective.x and type(objective.quests) == "table") then return end
+    ns.QUEST_NPC_ON_ART[instanceID] = ns.QUEST_NPC_ON_ART[instanceID] or {}
+    table.insert(ns.QUEST_NPC_ON_ART[instanceID], { kind = "object", name = objective.name, floor = objective.floor,
+        x = objective.x / ns.PERCENT, y = objective.y / ns.PERCENT, starts = {}, ends = {}, objectives = objective.quests })
+end
+
+for instanceID, spots in pairs(TableOrEmpty(ns.JOURNEY_SPOTS)) do
+    for _, objective in ipairs(TableOrEmpty(type(spots) == "table" and spots.objectives)) do AddObjectiveSpot(instanceID, objective) end
 end
 
 -- Boss level { minimum, maximum, rank } or nil.

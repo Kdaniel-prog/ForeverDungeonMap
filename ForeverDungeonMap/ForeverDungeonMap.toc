@@ -30,11 +30,13 @@ Data\BossLevels.lua
 Data\QuestInfo.lua
 Data\ForeverQuests.lua
 Data\ForeverBosses.lua
+Data\JourneyContent.lua
 Data\Art.lua
 Data\ClassGear.lua
 ForeverData.lua
 Theme.lua
 Widgets.lua
+BossModels.lua
 Canvas.lua
 MapCanvas.lua
 MapQuestSpots.lua
@@ -50,6 +52,7 @@ QuestPins.xml
 Settings.lua
 Rewards.lua
 Recap.lua
+RecapWindow.lua
 Learn.lua
 Debug.lua
 BugReport.lua

@@ -21,6 +21,8 @@ local DEFINITIONS = {
         tooltip = L["Show where dungeon quests start (!) and are turned in (?) on zone and continent maps."] },
     { key = "liveView", default = true, label = L["Live view next to the map"],
         tooltip = L["Show your minimap enlarged next to the world map while the map is open."] },
+    { key = "liveViewAlone", default = true, label = L["Live view on its own in dungeons"],
+        tooltip = L["Inside a dungeon the live view stays open without the world map (M): top right until you drag it elsewhere."] },
     { key = "liveViewOnlyInDungeons", default = false, label = L["Live view only inside dungeons"],
         tooltip = L["Open the live view only while you are inside a dungeon or raid."] },
     { key = "autoDungeonMap", default = true, label = L["Dungeon map on M inside dungeons"],

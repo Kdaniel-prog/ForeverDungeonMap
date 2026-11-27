@@ -48,6 +48,7 @@ local ADDON_PREFIX = "ForeverDungeonMap"
 -- liveZoom: minimap zoom of the live view (0 = farthest out);
 -- liveView: the live view opens next to the world map;
 -- liveViewOnlyInDungeons: ... but only inside a dungeon or raid;
+-- liveViewAlone: inside a dungeon the live view stays open on its own, without the world map;
 -- killed: { instanceID, names = { [bossName] = true } } survives /reload;
 -- questPins: show where dungeon quests start and end on the world map;
 -- autoDungeonMap: the world map opens on our dungeon view inside a dungeon;
@@ -58,6 +59,7 @@ ns.DEFAULTS = {
     liveZoom = 0,
     liveView = true,
     liveViewOnlyInDungeons = false,
+    liveViewAlone = true,
     questPins = true,
     autoDungeonMap = true,
     favourites = {},

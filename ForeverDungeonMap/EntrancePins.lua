@@ -22,6 +22,7 @@ local Pin = ForeverDungeonMapEntrancePinMixin
 
 function Pin:OnLoad()
     W.MarkOwned(self)
+    self:RaiseAboveBlizzardPins()
     self:ApplyScalingLimits(PIN_SCALE_MIN, PIN_SCALE_MAX)
     if not self.iconMasked then
         self.iconMasked = true

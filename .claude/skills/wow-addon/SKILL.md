@@ -46,6 +46,7 @@ description: Facts and traps for building the ForeverDungeonMap addon on the WoW
 | Data/Art.lua | make_art.py | wago.tools file list for build 1.60.1.70938 (FileDataIDs) |
 | Data/Forever.lua | import_forever.py | DungeonMaster, Questie, wago.tools tables, fan sites |
 | Data/ForeverBosses.lua | import_forever_bosses.py | wowf.io pages (status, loot per boss) + mmonster.co guides + Wowhead Forever NPC tooltips (creature ID, elite / rare elite) |
+| Data/JourneyContent.lua | import_dungeon_journey.py | DungeonJourney addon data (read as text, facts only; no licence) + Icy Veins guides/map/NPC DB + forg.gg map data (forg_maps.py, fitted floors) + Mobalytics entrance + QuestieDB NPC spots |
 - ForeverDungeonJournal (FDJ) has NO licence: never copy its code, data or Media, and (user decision,
   0.7.1) never read it at runtime either: every spot, map and reward comes from our own shipped data,
   so every character sees the same thing. APR is "All Rights

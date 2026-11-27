@@ -1161,7 +1161,13 @@ function Slider:GetValue() return self._value or 0 end
 defType("StatusBar", "Slider")
 defType("Cooldown", "Frame")
 defType("Model", "Frame")
-defType("PlayerModel", "Model")
+local PlayerModel = defType("PlayerModel", "Model")
+-- creature ID -> display ID the mock's models load (scenarios fill it); unknown creatures stay empty
+M.creatureDisplays = {}
+function PlayerModel:SetCreature(creatureID) self._display = M.creatureDisplays[creatureID] or 0 end
+function PlayerModel:ClearModel() self._display = 0 end
+function PlayerModel:GetDisplayInfo() return self._display or 0 end
+function PlayerModel:SetDisplayInfo(display) self._display = display end
 defType("GameTooltip", "Frame")
 defType("Minimap", "Frame")
 defType("SimpleHTML", "Frame")
@@ -1491,6 +1497,8 @@ function MapCanvasPinMixin:GetPosition() return self.normalizedX, self.normalize
 function MapCanvasPinMixin:SetScalingLimits(f, min, max) self.scaleFactor = f end
 function MapCanvasPinMixin:UseFrameLevelType() end
 function MapCanvasPinMixin:GetFrameLevelType() return "PIN_FRAME_LEVEL_DEFAULT" end
+function MapCanvasPinMixin:UseFrameLevelType(frameLevelType, index) self.pinFrameLevelType, self.pinFrameLevelIndex = frameLevelType, index end
+function MapCanvasPinMixin:GetFrameLevelType() return self.pinFrameLevelType or "PIN_FRAME_LEVEL_DEFAULT" end
 function MapCanvasPinMixin:ApplyFrameLevel() end
 function MapCanvasPinMixin:CheckMouseButtonPassthrough(...)
     -- Blizzard: decides which buttons pass through to the map and calls the protected API
@@ -1776,6 +1784,7 @@ M.MAPS = {
     [1426] = { name = "Dun Morogh", mapType = 3, parentMapID = 1415 },
     [1429] = { name = "Elwynn Forest", mapType = 3, parentMapID = 1415 },
     [1434] = { name = "Stranglethorn Vale", mapType = 3, parentMapID = 1415 },
+    [2548] = { name = "Riverglades", mapType = 3, parentMapID = 1415 },
     [1439] = { name = "Darkshore", mapType = 3, parentMapID = 1414 },
     [1442] = { name = "Stonetalon Mountains", mapType = 3, parentMapID = 1414 },
     [1445] = { name = "Dustwallow Marsh", mapType = 3, parentMapID = 1414 },

@@ -54,7 +54,7 @@ Step("PLAYER_LOGIN", function() M.FireEvent("PLAYER_LOGIN") end)
 Step("PLAYER_ENTERING_WORLD", function() M.FireEvent("PLAYER_ENTERING_WORLD", true, false) end)
 M.Advance(6)
 
-local KEYS = { "questPins", "liveView", "liveViewOnlyInDungeons", "autoDungeonMap", "recapPopup", "bossIconScale" }
+local KEYS = { "questPins", "liveView", "liveViewAlone", "liveViewOnlyInDungeons", "autoDungeonMap", "recapPopup", "bossIconScale" }
 Check("category registered as ForeverDungeonMap", registered and registered.name == "ForeverDungeonMap")
 Check("every setting has a control, in order", registered and #registered.controls == #KEYS and (function()
     for i, key in ipairs(KEYS) do

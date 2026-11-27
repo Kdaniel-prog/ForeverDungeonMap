@@ -11,6 +11,12 @@
 --    locked frame ignores SetFrameStrata and SetFrameLevel (bug report "there is still a grey
 --    patch": the minimap stayed on its own layer, under the live view window's dark fill).
 local addonName, ns = ...
+
+-- the live view next to the world map is checked here: the one on its own inside dungeons
+-- (liveViewAlone) has its own part in liveview_scenario.lua
+ForeverDungeonMapDB = ForeverDungeonMapDB or {}
+ForeverDungeonMapDB.liveViewAlone = false
+if ns.db then ns.db.liveViewAlone = false end
 local M = MOCK
 local Check, Step = M.Check, M.Step
 local LOGIN_IN_COMBAT = M.combat

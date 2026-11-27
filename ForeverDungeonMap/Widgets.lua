@@ -691,13 +691,19 @@ function W.CreatePortrait(parent, size, options)
 end
 
 -- CreatureDisplayID of a boss portrait: the boss record, the creature table of rares
--- (Data/DungeonSpots.lua), then the WoW Forever data.
+-- (Data/DungeonSpots.lua), the WoW Forever data, then what BossModels.lua learned in play
+-- (asked for here when nothing else knows it).
 function W.BossDisplay(boss)
     if boss.display then return boss.display end
     local byCreature = ns.CREATURE_DISPLAY and boss.npcID and ns.CREATURE_DISPLAY[boss.npcID]
     if byCreature then return byCreature end
     local forever = ns.FOREVER
-    return forever and type(forever.bossDisplay) == "table" and forever.bossDisplay[boss.name] or nil
+    local byName = forever and type(forever.bossDisplay) == "table" and forever.bossDisplay[boss.name]
+    if byName then return byName end
+    if not ns.BossModels then return nil end
+    local learned = ns.BossModels.Display(boss.npcID)
+    if not learned then ns.BossModels.Request(boss.npcID) end
+    return learned
 end
 
 local function SetLevelBadge(portrait, boss, instanceID)
@@ -1126,7 +1132,9 @@ function W.LocationText(location)
     elseif location.map then
         local info = C_Map.GetMapInfo(location.map)
         where = info and info.name or nil
-        if where and location.x and location.y then where = ("%s  (%.1f, %.1f)"):format(where, location.x, location.y) end
+        if where and location.x and location.y then
+            where = (location.approx and "%s  (~%.1f, %.1f)" or "%s  (%.1f, %.1f)"):format(where, location.x, location.y)
+        end
     end
     local text = where and (who .. "\n" .. where) or who
     if location.dropBy then text = text .. "\n" .. L["Drops from %s"]:format(location.dropBy) end

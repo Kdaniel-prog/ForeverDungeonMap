@@ -4,6 +4,12 @@
 -- a zone event the client skipped does not leave M without the dungeon.
 -- Run: python -I tools/harness/run.py tools/harness/liveview_scenario.lua   (and with --combat)
 local addonName, ns = ...
+
+-- the live view next to the world map is checked here: the one on its own inside dungeons
+-- (liveViewAlone) has its own part in liveview_scenario.lua
+ForeverDungeonMapDB = ForeverDungeonMapDB or {}
+ForeverDungeonMapDB.liveViewAlone = false
+if ns.db then ns.db.liveViewAlone = false end
 local M = MOCK
 local Check, Step = M.Check, M.Step
 local LOGIN_IN_COMBAT = M.combat
@@ -259,3 +265,43 @@ Check("7: the next M shows the dungeon again", ns.View:IsShown())
 CloseMap()
 CheckAtHome("7", home)
 CheckNoViolations("7")
+
+-- 8. on its own inside a dungeon (liveViewAlone, the default): no world map needed, top right,
+-- bigger, zoom buttons in the left corner, closed until the next dungeon, the dragged spot kept
+SetOption("liveViewAlone", true)
+Check("8: inside the dungeon", ns.instanceID ~= nil)
+CheckLiveView("8 on its own, map closed")
+local liveWindow = _G.ForeverDungeonMapLive
+local point, relativeTo, relativePoint = liveWindow:GetPoint(1)
+Check("8: at the screen's top right", point == "TOPRIGHT" and relativeTo == UIParent and relativePoint == "TOPRIGHT",
+    tostring(point) .. " " .. tostring(relativePoint))
+Check("8: bigger than the minimap at home", liveWindow.side == 360 and Minimap:GetWidth() == 360, tostring(liveWindow.side))
+OpenMap(DUNGEON_UI_MAP)
+CheckLiveView("8 map opened")
+CloseMap()
+CheckLiveView("8 map closed again: still there")
+Step("zoom in with the button", function() Minimap:SetZoom(1); M.Click(ns.Live.zoomButtons[1]) end)
+Check("8: zoom in button", Minimap:GetZoom() == 2, Minimap:GetZoom())
+Step("zoom out with the button", function() M.Click(ns.Live.zoomButtons[2]); M.Click(ns.Live.zoomButtons[2]) end)
+Check("8: zoom out button", Minimap:GetZoom() == 0, Minimap:GetZoom())
+Check("8: zoom in left of zoom out, in the bottom-left corner",
+    M.RelLeft(liveWindow, ns.Live.zoomButtons[1]) < M.RelLeft(liveWindow, ns.Live.zoomButtons[2])
+    and M.RelLeft(liveWindow, ns.Live.zoomButtons[1]) < 20)
+Step("user drags it", function()
+    M.FireScript(ns.Live.dragHandles[1], "OnDragStart")
+    M.FireScript(ns.Live.dragHandles[1], "OnDragStop")
+end)
+Check("8: the dragged spot is kept", ns.db.windowPositions[ns.LIVE_WINDOW_NAME] ~= nil)
+Step("user closes it", function() M.Click(liveWindow.CloseButton) end)
+M.Advance(1)
+CheckNoLiveView("8 closed by the player")
+LeaveDungeon()
+CheckAtHome("8 left the dungeon", home)
+EnterDungeon()
+CheckLiveView("8 next dungeon: back on its own")
+local saved = ns.db.windowPositions[ns.LIVE_WINDOW_NAME]
+local _, _, _, savedX, savedY = liveWindow:GetPoint(1)
+Check("8: on the dragged spot", saved and savedX == saved[3] and savedY == saved[4], tostring(savedX) .. "," .. tostring(savedY))
+LeaveDungeon()
+CheckAtHome("8", home)
+CheckNoViolations("8")

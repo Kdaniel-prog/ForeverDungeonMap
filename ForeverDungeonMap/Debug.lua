@@ -158,6 +158,7 @@ function Debug.ExportText()
         ("-- ForeverDungeonMap %s learned data, client %s"):format(tostring(version or "?"), tostring((GetBuildInfo()))),
         "learnedLocations = " .. Debug.Serialize(savedSettings.learnedLocations or {}),
         "learnedRewards = " .. Debug.Serialize(savedSettings.learnedRewards or {}),
+        "learnedDisplays = " .. Debug.Serialize(savedSettings.learnedDisplays or {}),
         "blocked = " .. Debug.Serialize(savedSettings.blocked or {}),
     }, "\n")
 end
